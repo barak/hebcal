@@ -1,0 +1,7 @@
+hebcal for Debian
+-----------------
+
+This package is compiled with a default setting of New York City.  Read
+the manual for showing how to pick a new city or longitude/latitude setting
+
+ -- Shaya Potter <spotter@cs.columbia.edu>, Mon, 13 May 2002 22:24:40 -0400

@@ -38,8 +38,13 @@ HFILES = common.h danlib.h myerror.h mygetopt.h\
 FILES = $(CFILES) $(HFILES) Makefile hebcal.1  Manual README hebcal.dsw hebcal.dsp
 
 
+
 hebcal:  $(OBJ)
 	 $(CC) $(OBJ) -o hebcal $(CFLAGS) $(LDFLAGS)
+
+install: hebcal
+	install hebcal $(DESTDIR)/usr/bin
+	install -D -m 644 hebcal.1 $(DESTDIR)/usr/share/man/man1/hebcal.1
 
 rise.c:	rise.h 
 
@@ -85,7 +90,7 @@ zip:
 	rm -fr $(TARDIR)
 
 clean:
-	rm -f *.o *~ core
+	rm -f *.o *~ core hebcal
 	du
 
 indent: $(CFILES)
