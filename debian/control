@@ -2,12 +2,12 @@ Source: hebcal
 Section: utils
 Priority: optional
 Maintainer: Shaya Potter <spotter@cs.columbia.edu>
-Build-Depends: debhelper (>> 3.0.0)
-Standards-Version: 3.5.6
+Build-Depends: debhelper (>= 4.0.0), autotools-dev
+Standards-Version: 3.6.1
 
 Package: hebcal
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: A Perpetual Jewish Calendar
  Hebcal is a program which prints out the days in the Jewish calendar
  for a given gregorian year.  Hebcal is fairly flexible in terms of which

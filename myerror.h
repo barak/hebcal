@@ -5,9 +5,8 @@
 #define __MYERROR__
 
 #include <stdio.h>
-#include "proto.h"
 
-void die PROTO((char *, char *));
-void warn PROTO((char *, char *));
+void die( const char *, const char * );
+void warn( const char *, const char * );
 
 #endif

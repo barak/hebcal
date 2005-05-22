@@ -1,7 +1,7 @@
 /*
-   $Id: error.c,v 1.1 1997/03/25 14:14:46 danny Exp $
+   $Id: error.c,v 1.5 2004/02/25 04:53:33 sadinoff Exp $
    Hebcal - A Jewish Calendar Generator
-   Copyright (C) 1994  Danny Sadinoff
+   Copyright (C) 1994-2004  Danny Sadinoff
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -18,40 +18,40 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    Danny Sadinoff can be reached at 
-   1 Cove La.
-   Great Neck, NY
-   11024
+   danny@sadinoff.com
 
-   sadinoff@pobox.com
  */
+
+/*
+  a la perl
+*/
+
 #include "myerror.h"
 #include <errno.h>
+#include <stdlib.h>
 
-extern int errno;
 extern char *progname;
 
-void 
-die (s1, s2)			/* print error message and die */
-     char *s1, *s2;
+/* print error message and die */
+void die( const char *s1, const char *s2)			
 {
-  if (errno)
-    perror (progname);
-  else
-    fprintf (stderr, "%s: ", progname);
-  fprintf (stderr, s1, s2);
-  fprintf (stderr, "\n");
-  exit (1);
+    if (errno)
+        perror (progname);
+    else
+        fprintf (stderr, "%s: ", progname);
+    fprintf (stderr, s1, s2);
+    fprintf (stderr, "\n");
+    exit (1);
 }
 
-void 
-warn (s1, s2)			/* print error message but don't die */
-     char *s1, *s2;
+/* print error message but don't die */
+void warn( const char *s1, const char *s2)			
 {
-  if (errno)
-    perror (progname);
-  else
-    fprintf (stderr, "%s: ", progname);
-  fprintf (stderr, s1, s2);
-  fprintf (stderr, "\n");
-  errno = 0;
+    if (errno)
+        perror (progname);
+    else
+        fprintf (stderr, "%s: ", progname);
+    fprintf (stderr, s1, s2);
+    fprintf (stderr, "\n");
+    errno = 0;
 }

@@ -1,6 +1,9 @@
 /*
    Hebcal - A Jewish Calendar Generator
    Copyright (C) 1994  Danny Sadinoff
+   Portions Copyright (c) 2002 Michael J. Radwin. All Rights Reserved.
+
+   http://sourceforge.net/projects/hebcal
      
      This program is free software; you can redistribute it and/or
      modify it under the terms of the GNU General Public License
@@ -17,11 +20,7 @@
      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
      Danny Sadinoff can be reached at 
-     1 Cove La.
-     Great Neck, NY
-              11024
- 
-     sadinoff@pobox.com              (thereafter)
+     danny@sadinoff.com
 */
 
 #ifndef __HEBCAL__
@@ -30,7 +29,6 @@
 #include "stdio.h"
 #include "greg.h"
 #include "myerror.h"
-#include "proto.h"
 
 #ifndef ENV_CITY_STR
 #define ENV_CITY_STR "HC_CITY"
@@ -42,37 +40,40 @@
 #define LEAP_YR_HEB(x) ((1L + (long)(x)* 7L) % 19L < 7L ? 1 : 0)
 #define MONTHS_IN_HEB(x) (LEAP_YR_HEB(x) ? 13 :12)
 #define LANGUAGE(str) (ashkenazis_sw && (str)[1] ? ((str)[1]) : ((str)[0]))
+#define LANGUAGE2(str) (iso8859_8_sw && (str)[2] ? ((str)[2]) : (ashkenazis_sw && (str)[1] ? ((str)[1]) : ((str)[0])))
 
 extern FILE *inFile, *yFile;
 
 extern int DST_scheme,
-   ashkenazis_sw, 
-   candleLighting_sw, 
-   euroDates_sw,
-   hebrewDates_sw,
-   inputFile_sw,
-   israel_sw,
-   latdeg, latmin, latsec, longdeg, longmin, longsec, TZ, 
-   latlong_sw,
-   printOmer_sw,
-   printHebDates_sw,
-   printSomeHebDates_sw,
-   sedraAllWeek_sw, 
-   sedrot_sw, 
-   noGreg_sw, 
-   noHolidays_sw,
-   suppress_rosh_chodesh_sw,
-   tabs_sw,
-   weekday_sw, 
-   yearDigits_sw,
-   yahrtzeitFile_sw;
+    ashkenazis_sw, 
+    iso8859_8_sw,
+    candleLighting_sw, 
+    euroDates_sw,
+    hebrewDates_sw,
+    inputFile_sw,
+    israel_sw,
+    latdeg, latmin, latsec, longdeg, longmin, longsec, TZ, 
+    latlong_sw,
+    printOmer_sw,
+    printHebDates_sw,
+    printSomeHebDates_sw,
+    sedraAllWeek_sw, 
+    sedrot_sw, 
+    noGreg_sw, 
+    noHolidays_sw,
+    suppress_rosh_chodesh_sw,
+    tabs_sw,
+    weekday_sw, 
+    yearDigits_sw,
+    yahrtzeitFile_sw;
 
 extern int havdalah_minutes,
    light_offset;
 
+extern char* formatString;
 
 
-typedef struct {
+typedef struct hebrew_year {
    int first_day_of_week;
    int leap_p;
 } year_t;
@@ -80,38 +81,44 @@ typedef struct {
 #define DST_USOFA 0
 #define DST_NONE 1
 #define DST_ISRAEL 2
+#define DST_EU 3
+#define DST_AUNZ 4
 
 /* holiday typemask entries */
 #define USER_EVENT 1
 #define LIGHT_CANDLES 2
 #define YOM_TOV_ENDS 4
+#define CHUL_ONLY 8		/* chutz l'aretz (Diaspora) */
+#define IL_ONLY 16		/* b'aretz (Israel) */
+#define LIGHT_CANDLES_TZEIS 32
+
 typedef struct hinode{   /* holiday input structure */
-   date_t date;
-   char *(name[2]);
-   int typeMask;
-   struct hinode *next;
+    date_t date;
+    char *(name[3]);
+    unsigned int typeMask;
+    struct hinode *next;
 } holinput_t, *holinputp_t;
 
 typedef struct hsnode{  /* holiday storage structure */
-   char *name;
-   int typeMask;
-   struct hsnode *next;
+    char *name;
+    unsigned int typeMask;
+    struct hsnode *next;
 } holstore_t, *holstorep_t;
 
-year_t yearData PROTO((int));
-date_t nextHebDate PROTO((date_t));
-date_t prevHebDate PROTO((date_t));
-struct hsnode *getHolstorep PROTO((void));
-int PushHoliday PROTO((struct hsnode *, struct hsnode **));
-void init_holidays PROTO((int));
-int getHebHolidays PROTO((date_t, struct hsnode **));
-void incHebGregDate PROTO((date_t *, date_t *,long *,int *,year_t *));
-void PrintGregDate PROTO((date_t));
-void main_calendar PROTO((long,long));
-void print_candlelighting_times PROTO((int, int, date_t, int));
-void reset_Omer PROTO(( int hYear));
+year_t yearData( int );
+date_t nextHebDate( date_t );
+date_t prevHebDate( date_t );
+struct hsnode *getHolstorep( void );
+int PushHoliday( struct hsnode *, struct hsnode ** );
+void init_holidays( int );
+int getHebHolidays( date_t, struct hsnode ** );
+void incHebGregDate( date_t *, date_t *,long *,int *,year_t * );
+void PrintGregDate( date_t );
+void main_calendar( long,long );
+void print_candlelighting_times( int, int, date_t, int );
+void reset_Omer( int hYear );
 
-extern char * license[];
-extern char * warranty[];
+extern const char * license[];
+extern const char * warranty[];
 #endif
 

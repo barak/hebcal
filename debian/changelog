@@ -1,6 +1,11 @@
+hebcal (3.4-1) unstable; urgency=low
+
+  * New Version (Closes: #310264)
+
+ -- Shaya Potter <spotter@cs.columbia.edu>  Sun, 22 May 2005 08:50:11 -0400
+
 hebcal (3.2-1) unstable; urgency=low
 
   * Initial Release. (Closes: #156606)
 
  -- Shaya Potter <spotter@cs.columbia.edu>  Mon, 13 May 2002 22:24:40 -0400
-

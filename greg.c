@@ -1,7 +1,10 @@
 /*
-   $Id: greg.c,v 1.1 1997/03/25 14:14:48 danny Exp $
+   $Id: greg.c,v 1.7 2004/02/25 04:51:58 sadinoff Exp $
    Hebcal - A Jewish Calendar Generator
-   Copyright (C) 1994  Danny Sadinoff
+   Copyright (C) 1994-2004  Danny Sadinoff
+   Portions Copyright (c) 2002 Michael J. Radwin. All Rights Reserved.
+
+   http://sourceforge.net/projects/hebcal
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -18,15 +21,12 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    Danny Sadinoff can be reached at 
-   1 Cove La.
-   Great Neck, NY
-   11024
-
-   sadinoff@pobox.com
+   danny@sadinoff.com
  */
 
 
 #include "mystdio.h"
+#include "danlib.h"
 #include <time.h>
 #include <string.h>
 #include "myerror.h"
@@ -38,22 +38,22 @@
 
  */
 
-char *eMonths[] =
+const char *eMonths[] =
 {
-  "UNUSED",
-  "January", "February", "March", "April", "May", "June", "July",
-  "August", "September", "October", "November", "December"
+    "UNUSED",
+    "January", "February", "March", "April", "May", "June", "July",
+    "August", "September", "October", "November", "December"
 };
 
 int MonthLengths[][13] =
 {
-  {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
-  {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+    {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+    {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 };
 
-char *ShortDayNames[] =
+const char *ShortDayNames[] =
 {
-  "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+    "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
 };
 
 
@@ -64,18 +64,16 @@ char *ShortDayNames[] =
  */
 
 
-int 
-dayOfYear (d)
-     date_t d;
+int dayOfYear( date_t d )
 {
-  int dOY = d.dd + 31 * (d.mm - 1);
-  if (d.mm > FEB)
+    int dOY = d.dd + 31 * (d.mm - 1);
+    if (d.mm > FEB)
     {
-      dOY -= (4 * d.mm + 23) / 10;
-      if (LEAP (d.yy))
-	dOY++;
+        dOY -= (4 * d.mm + 23) / 10;
+        if (LEAP (d.yy))
+            dOY++;
     }
-  return dOY;
+    return dOY;
 }
 
 
@@ -83,15 +81,13 @@ dayOfYear (d)
  * The number of days elapsed between the Gregorian date 12/31/1 BC and DATE.
  * The Gregorian date Sunday, December 31, 1 BC is imaginary.
  */
-long int 
-greg2abs (d)			/* "absolute date" */
-     date_t d;
+long int greg2abs( date_t d )			/* "absolute date" */ 
 {
-  return ((long) dayOfYear (d)	/* days this year */
-	  + 365L * (long) (d.yy - 1)	/* + days in prior years */
-	  + (long) ((d.yy - 1) / 4	/* + Julian Leap years */
-		    - (d.yy - 1) / 100	/* - century years */
-		    + (d.yy - 1) / 400));	/* + Gregorian leap years */
+    return ((long) dayOfYear (d)	/* days this year */
+            + 365L * (long) (d.yy - 1)	/* + days in prior years */
+            + (long) ((d.yy - 1) / 4	/* + Julian Leap years */
+                      - (d.yy - 1) / 100	/* - century years */
+                      + (d.yy - 1) / 400));	/* + Gregorian leap years */
 }
 
 /*
@@ -100,9 +96,7 @@ greg2abs (d)			/* "absolute date" */
  * Clamen, Software--Practice and Experience, Volume 23, Number 4
  * (April, 1993), pages 383-404 for an explanation.
  */
-date_t 
-abs2greg (theDate)
-     long theDate;
+date_t abs2greg( long theDate )
 {
   int day, year, month, mlen;
   date_t d;
@@ -143,25 +137,18 @@ abs2greg (theDate)
     }
 }
 
-void 
-incDate (dt, n)			/* decrements dt by n days */
-     date_t *dt;
-     long int n;
+void incDate (date_t *dt, long n)			/* increments dt by n days */
 {
   *dt = abs2greg (greg2abs (*dt) + n);
 }
 
 
-int 
-dayOfWeek (d1)			/* sunday = 0 */
-     date_t d1;
+int dayOfWeek(date_t d1)			/* sunday = 0 */
 {
   return (int) (greg2abs (d1) % 7L);
 }
 
-void 
-setDate (d)
-     date_t *d;
+void setDate ( date_t *d )
 {
 /*
    asctime() converts a time value contained in a tm  structure
@@ -171,26 +158,24 @@ setDate (d)
    pointer to the string.
  */
 
-  time_t time ();
-  char *ctime PROTO ((const time_t *));
-
-  time_t secs = time (NULL);
-  char *timestr = ctime (&secs);
+/*    
+FIX: removing these decls, but need to start doing compilation platofrm checks to ensure that these aren't necessary.
+time_t time ();
+    char *ctime( const time_t * );
+*/  
+    time_t secs = time (NULL);
+    char *timestr = ctime (&secs);
 
 /* portability has driven me to truly shameful code.  
    please forgive this.
  */
-  sscanf (timestr + 20, "%d", &d->yy);
-  d->mm = lookup_string (timestr + 4, eMonths, 13, 3);
-  sscanf (timestr + 8, "%d", &d->dd);
+    sscanf (timestr + 20, "%d", &d->yy);
+    d->mm = lookup_string( timestr + 4, eMonths, 13, 3 );
+    sscanf (timestr + 8, "%d", &d->dd);
 }
 
 
-long 
-day_on_or_before (day_of_week, date)
-     int day_of_week;
-     long date;
-/* Returns the absolute date of the DAYNAME on or before absolute DATE.
+/** Returns the absolute date of the DAYNAME on or before absolute DATE.
  * DAYNAME=0 means Sunday, DAYNAME=1 means Monday, and so on.
 
 
@@ -199,14 +184,15 @@ day_on_or_before (day_of_week, date)
  * absolute date d, applying it to d-1 gives the DAYNAME previous to absolute
  * date d, and applying it to d+7 gives the DAYNAME following absolute date d.
 
- */
+**/
+long day_on_or_before( int day_of_week, long date)
 {
   return date - ((date - (long) day_of_week) % 7L);
 }
 
 
 
-/* (defun calendar-nth-named-day (n dayname month year &optional day)
+/** (defun calendar-nth-named-day (n dayname month year &optional day)
    "The date of Nth DAYNAME in MONTH, YEAR before/after optional DAY.
    A DAYNAME of 0 means Sunday, 1 means Monday, and so on.  If N<0,
    return the Nth DAYNAME before MONTH DAY, YEAR (inclusive).

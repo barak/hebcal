@@ -1,6 +1,9 @@
 /*
    Hebcal - A Jewish Calendar Generator
    Copyright (C) 1994  Danny Sadinoff
+   Portions Copyright (c) 2002 Michael J. Radwin. All Rights Reserved.
+
+   http://sourceforge.net/projects/hebcal
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -16,12 +19,8 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-   Danny Sadinoff can be reached at 
-   1 Cove La.
-   Great Neck, NY
-   11024
-
-   sadinoff@pobox.com
+   Danny Sadinoff can be reached at
+   danny@sadinoff.com
  */
 
 /* the following need to be #defined: CITY ENV_CITY ENV_OPTS */
@@ -35,12 +34,13 @@
 #include "mygetopt.h"
 #include "danlib.h"
 #include "stdlib.h"
+#include "cities.h"
 
 #define ENV_CITY "HEBCAL_CITY"
 #define ENV_OPTS "HEBCAL_OPTS"
 
-void handleArgs PROTO((int, char **));
-int main PROTO((int, char **));
+void handleArgs( int, char ** );
+int main( int, char ** );
 int ok_to_run = 1;
 
 #define YEAR 0
@@ -48,16 +48,14 @@ int ok_to_run = 1;
 #define DAY 2
 #define TODAY 3
 
-#define SCREEN_HEIGHT 22
-
 char *progname;
 static int theYear, theMonth, theDay, yearDirty, rangeType, zonep, schemep,
-  latp, longp;			/* has the user inputted lat and long? */
+    latp, longp;			/* has the user inputted lat and long? */
 static char
- *cityName, *helpArray[] =
+    *cityName, *helpArray[] =
 {
    "Hebcal Version " VERSION " By Danny Sadinoff",
-   "usage: hebcal [-acdDeHhiorsStTwy]",
+   "usage: hebcal [-8acdDeHhiorsStTwy]",
    "            [-I file]",
    "            [-Y yahrtzeit_file]",
    "            [-C city]",
@@ -65,6 +63,7 @@ static char
    "            [-m havdalah_minutes_past_sundown ]",
    "            [-z timezone]",
    "            [-Z daylight_savings_option]",
+   "            [-f format_option]",
    "            [[ month [ day ]] year ]",
    "       hebcal help",
    "       hebcal info",
@@ -73,6 +72,7 @@ static char
    "       hebcal warranty",
    "       hebcal copying",
    "OPTIONS:",
+   "   -8 : Use 8-bit Hebrew (ISO-8859-8-Logical).",
    "   -a : Use ashkenazis hebrew.",
    "   -c : Print candlelighting times.",
    "   -C city : Set latitude, longitude, timezone and daylight",
@@ -84,6 +84,7 @@ static char
    "   -h : Suppress default holidays.",
    "   -H : Use Hebrew date ranges - only needed when e.g. hebcal -H 5373",
    "   -i : Use Israeli sedra scheme.",
+   "   -f FORMAT : change output to FORMAT. see below for format strings",
    "   -I file : Get non-yahrtzeit Hebrew user events from specified file.",
  "        The format is : mmm dd string, Where mmm is a Hebrew month name.",
    "   -l xx,yy : Set the latitude for solar calculations to",
@@ -108,7 +109,7 @@ static char
    "   -z : Use specified timezone, disabling daylight savings time,",
    "        overriding the -C (localize to city) switch.",
    "   -Z scheme : change to daylight savings scheme.  The possible values",
-   "        of scheme are currently usa, israel, and none.",
+   "        of scheme are currently usa, israel, eu, and none.",
    "",
    "hebcal help    -- Print this message.",
    "hebcal info    -- Print version and localization data.",
@@ -128,7 +129,9 @@ static char
    "Note: Use COMPLETE Years.  You probably aren't interested in ",
    "hebcal 93, but rather hebcal 1993.",
    "", "",
-   "Hebcal is copyright (c) 1994 By Danny Sadinoff",
+   "Hebcal is copyright (c) 1994-2004 By Danny Sadinoff",
+   "Portions Copyright (c) 2002 Michael J. Radwin. All rights reserved.",
+   "",
    "This program is free software; you can redistribute it and/or",
    "modify it under the terms of the GNU General Public License",
    "as published by the Free Software Foundation; either version 2",
@@ -140,251 +143,173 @@ static char
    "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  ",
    "Type \"hebcal warranty\" for more details.",
    "  ",
-   "\"Free\" above means freely distributed.  Checks are always welcome:",
-   "  If you like hebcal,",
-   "Send money to Danny Sadinoff",
-   "            1 Cove La.    ",
-   "            Great Neck, NY",
-   "                    11024"
+   "\"Free\" above means freely distributed.  To donate money to support hebcal,", 
+   " see the paypal link at http://www.sadinoff.com/hebcal/ "
+   "",
+   "WWW:",
+   "            http://sourceforge.net/projects/hebcal"
 };
 
-typedef struct
+typedef struct dst
 {
-   char *name;
-   int DST_scheme;
+    char *name;
+    int DST_scheme;
 }
 dst_t;
 
 dst_t savings_bank[] =
 {
-   {"usa", DST_USOFA},
-   {"none", DST_NONE},
-   {"israel", DST_ISRAEL},
-   {"", 0}
-};
-
-typedef struct
-{
-   char *name;
-   int latdeg, latmin, longdeg, longmin, TZ, DST_scheme;
-}
-city_t;
-
-city_t cities[] =
-{
-   {"Atlanta", 33, 45, 84, 23, -5, DST_USOFA},
-   {"Austin", 30, 16, 97, 45, -6, DST_USOFA},
-   {"Berlin", 52, 31, -13, -24, 1, DST_NONE},
-   {"Baltimore", 39, 17, 76, 36, -5, DST_USOFA},
-   {"Bogota", 4, 36, 74, 5, -5, DST_NONE},
-   {"Boston", 42, 20, 71, 4, -5, DST_USOFA},
-   {"Buenos Aires", -34, -37, 58, 24, -3, DST_NONE},
-   {"Buffalo", 42, 53, 78, 52, -5, DST_USOFA},
-   {"Chicago", 41, 50, 87, 45, -6, DST_USOFA},
-   {"Cincinnati", 39, 6, 84, 31, -5, DST_USOFA},
-   {"Cleveland", 41, 30, 81, 41, -5, DST_USOFA},
-   {"Dallas", 32, 47, 96, 48, -6, DST_USOFA},
-   {"Denver", 39, 44, 104, 59, -7, DST_USOFA},
-   {"Detroit", 42, 20, 83, 2, -5, DST_USOFA},
-   {"Gibraltar", 36, 0, 5, 0, -10, DST_USOFA},
-   {"Hawaii", 19, 30, 155, 30, -10, DST_USOFA},
-   {"Houston", 29, 46, 95, 22, -6, DST_USOFA},
-   {"Jerusalem", 31, 47, -35, -14, 2, DST_ISRAEL},
-   {"Johannesburg", -28, -3, -26, -12, 1, DST_NONE},
-   {"London", 51, 30, 0, 10, 0, DST_NONE},
-   {"Los Angeles", 34, 4, 118, 15, -8, DST_USOFA},
-   {"Miami", 25, 46, 80, 12, -5, DST_USOFA},
-   {"Mexico City", 19, 24, 99, 9, -6, DST_NONE},
-   {"New York", 40, 43, 74, 1, -5, DST_USOFA},
-   {"Omaha", 41, 16, 95, 56, -7, DST_USOFA},
-   {"Philadelphia", 39, 57, 75, 10, -5, DST_USOFA},
-   {"Phoenix", 33, 27, 112, 4, -7, DST_USOFA},
-   {"Pittsburgh", 40, 26, 80, 0, -5, DST_USOFA},
-   {"Saint Louis", 38, 38, 90, 12, -6, DST_USOFA},
-   {"San Francisco", 37, 47, 122, 25, -8, DST_USOFA},
-   {"Seattle", 47, 36, 122, 20, -8, DST_USOFA},
-   {"Toronto", 43, 38, 79, 24, -5, DST_NONE},
-   {"Vancouver", 49, 16, 123, 7, -8, DST_NONE},
-   {"Washington DC", 38, 55, 77, 0, -5, DST_USOFA},
-   {0, 0, 0, 0, 0, 0, 0}
+    {"usa", DST_USOFA},
+    {"none", DST_NONE},
+    {"israel", DST_ISRAEL},
+    {"eu", DST_EU},
+    {"aunz", DST_AUNZ},
+    {"", 0}
 };
 
 
-void
-  print_version_data()
+
+void print_version_data(void)
 {
-   printf("hebcal version " VERSION "\n");
-   printf("=====Defaults=====\n");
-   printf("City: %s\n", cityName);
-   printf("          %dd%d' %c latitude\n", abs(latdeg), abs(latmin),
-	  latdeg < 0 ? 'S' : 'N');
-   printf("          %dd%d' %c longitude\n", abs(longdeg), abs(longmin),
-	  longdeg < 0 ? 'W' : 'E');
-   printf("\nEnvironment variable for default city: %s\n", ENV_CITY);
-   printf("\nEnvironment variable for default options: %s\n", ENV_OPTS);
+    printf("hebcal version " VERSION "\n");
+    printf("=====Defaults=====\n");
+    printf("City: %s\n", cityName);
+    printf("          %dd%d' %c latitude\n", abs(latdeg), abs(latmin),
+           latdeg < 0 ? 'S' : 'N');
+    printf("          %dd%d' %c longitude\n", abs(longdeg), abs(longmin),
+           longdeg > 0 ? 'W' : 'E');
+    printf("          GMT %s%d:00\n",
+           TZ < 0 ? "" : "+", TZ);
+    printf("\nEnvironment variable for default city: %s\n", ENV_CITY);
+    printf("\nEnvironment variable for default options: %s\n", ENV_OPTS);
 }
 
-#define LIC_LEN 269
-#define WAR_LEN 26
-void
-  print_warranty()
+void print_warranty( void )
+{
+    int cnum;
+
+    for (cnum = 0;
+         warranty[cnum];
+         cnum++)
+    {
+        puts(warranty[cnum]);
+    }
+}
+
+void print_copying( void )
 {
 
-   int cnum;
-   char dummy[10];
+    int cnum;
 
-   for (cnum = 0;
-	cnum < WAR_LEN;
-	cnum++)
+    for (cnum = 0;
+         license[cnum];
+         cnum++)
+    {
+        puts(license[cnum]);
+    }
+
+    for (cnum = 0;
+         warranty[cnum];
+         cnum++)
    {
-      puts(warranty[cnum]);
-      if (0 == (cnum + 2) % SCREEN_HEIGHT)
-      {
-	 printf(" ---MORE---    Hit Enter To Continue....");
-	 fgets(&dummy[0], 10, stdin);
-      }
+       puts(warranty[cnum]);
    }
 }
 
-void
-  print_copying()
+void print_city_data( void )
 {
+    int cnum;
 
-   int cnum;
-   char dummy[10];
-
-   for (cnum = 0;
-	cnum < LIC_LEN;
-	cnum++)
-   {
-      puts(license[cnum]);
-      if (0 == (cnum + 2) % SCREEN_HEIGHT)
-      {
-	 printf(" ---MORE---    Hit Enter To Continue....");
-	 fgets(&dummy[0], 10, stdin);
-      }
-   }
-   for (cnum = 0;
-	cnum < WAR_LEN;
-	cnum++)
-   {
-      puts(warranty[cnum]);
-      if (0 == (cnum + 2) % SCREEN_HEIGHT)
-      {
-	 printf(" ---MORE---    Hit Enter To Continue....");
-	 fgets(&dummy[0], 10, stdin);
-      }
-   }
+    for (cnum = 0;
+         cities[cnum].name;
+         cnum++)
+    {
+        printf("%s (%dd%d' %c lat, %dd%d' %c long, GMT %s%d:00)\n",
+              cities[cnum].name,
+               abs(cities[cnum].latdeg), abs(cities[cnum].latmin),
+               cities[cnum].latdeg < 0 ? 'S' : 'N',
+               abs(cities[cnum].longdeg), abs(cities[cnum].longmin),
+               cities[cnum].longdeg > 0 ? 'W' : 'E',
+               cities[cnum].TZ < 0 ? "" : "+", cities[cnum].TZ
+            );
+    }
 }
 
-void
-  print_city_data()
+void print_DST_data(void)
 {
+    size_t cnum;
 
-   int cnum;
-   char dummy[10];
-
-   for (cnum = 0;
-	cities[cnum].name;
-	cnum++)
-   {
-      puts(cities[cnum].name);
-      if (0 == (cnum + 2) % SCREEN_HEIGHT)
-      {
-	 printf(" ---MORE---    Hit Enter To Continue....");
-	 fgets(&dummy[0], 10, stdin);
-      }
-   }
-}
-
-void
-  print_DST_data()
-{
-
-   int cnum;
-   char dummy[10];
-
-   for (cnum = 0;
-	(cnum < sizeof(savings_bank) / sizeof(dst_t));
-	cnum++)
-   {
-      puts(savings_bank[cnum].name);
-      if (0 == (cnum + 1) % SCREEN_HEIGHT)
-      {
-	 printf(" ---MORE---    Hit Enter To Continue....");
-	 fgets(&dummy[0], 10, stdin);
-      }
-   }
+    for (cnum = 0;
+         (cnum < sizeof(savings_bank) / sizeof(dst_t));
+         cnum++)
+    {
+        puts(savings_bank[cnum].name);
+    }
 }
 
 
-void
-  localize_to_city(s)
-     char *s;
+void localize_to_city(const char *cityNameArg)
 {
-   int len = strlen(s);
-   char *pc, *cityStr;
-   city_t *pcity;
+    size_t len = strlen(cityNameArg);
+    char *pc, *cityStr;
+    city_t *pcity;
 
-   initStr(&cityStr, strlen(s));
-   strcpy(cityStr, s);
+    initStr(&cityStr, strlen(cityNameArg));
+    strcpy(cityStr, cityNameArg);
 
-   if (cityName != NULL)
-      free(cityName);
+    if (cityName != NULL)
+        free(cityName);
 
-   /* convert non-alpha to spaces */
-   for (pc = cityStr; *pc != '\0'; pc++)
-      if (!isalpha(*pc))
-	 *pc = ' ';
+    /* convert non-alpha to spaces */
+    for ( pc = cityStr; *pc != '\0'; pc++ )
+        if ( ! isalpha( (int)*pc ) )
+            *pc = ' ';
 
-   for (pcity = &cities[0]; pcity->name != NULL; pcity++)
-      if (0 == istrncasecmp(len, cityStr, pcity->name))
-      {
-	 if (!(longp || latp))	/* -l and -L override -C  */
-	 {
-	    latdeg = pcity->latdeg;
-	    latmin = pcity->latmin;
-	    longdeg = pcity->longdeg;
-	    longmin = pcity->longmin;
-	 }
-	 if (!zonep)
-	 {
-	    TZ = pcity->TZ;
-	    DST_scheme = pcity->DST_scheme;
-	 }
-	 free(cityStr);
-	 initStr(&cityName, strlen(pcity->name));
-	 strcpy(cityName, pcity->name);
-	 return;
+    for (pcity = &cities[0]; pcity->name != NULL; pcity++)
+        if (0 == istrncasecmp(len, cityStr, pcity->name))
+        {
+            if (!(longp || latp))	/* -l and -L override -C  */
+            {
+                latdeg = pcity->latdeg;
+                latmin = pcity->latmin;
+                longdeg = pcity->longdeg;
+                longmin = pcity->longmin;
+            }
+            if (!zonep)
+            {
+                TZ = pcity->TZ;
+                DST_scheme = pcity->DST_scheme;
+            }
+            free(cityStr);
+            initStr(&cityName, strlen(pcity->name));
+            strcpy(cityName, pcity->name);
+            return;
       }
 
-   warn("unknown city: %s. Use a nearby city or geographic coordinates.", s);
-   warn("run 'hebcal cities' for a list of cities.", "");
-   ok_to_run = 0;
+    warn("unknown city: %s. Use a nearby city or geographic coordinates.", cityNameArg);
+    warn("run 'hebcal cities' for a list of cities.", "");
+    ok_to_run = 0;
 }
 
-void
-  set_DST_scheme(s)
-     char *s;
+void set_DST_scheme(const char* schemeArg)
 {
-   int len = strlen(s);
-   dst_t *pdst;
+    size_t len = strlen(schemeArg);
+    dst_t *pdst;
 
-   for (pdst = savings_bank; pdst->name != NULL; pdst++)
-      if (0 == istrncasecmp(len, s, pdst->name))
+    for (pdst = savings_bank; pdst->name != NULL; pdst++)
+        if (0 == istrncasecmp(len, schemeArg, pdst->name))
       {
-	 DST_scheme = pdst->DST_scheme;
-	 return;
+          DST_scheme = pdst->DST_scheme;
+          return;
       }
 
-   die("unknown daylight savings scheme: %s.  \"hebcal DST\" for options.", s);
+    die("unknown daylight savings scheme: %s.  \"hebcal DST\" for options.", schemeArg);
 }
 
 
-void
-  set_default_city()
+void set_default_city( void )
 {
-   char *s;
+    const char *cityName;
 
 #ifdef CITY
    localize_to_city(CITY);
@@ -392,19 +317,15 @@ void
    localize_to_city("NEW YORK");	/* helluva town. */
 #endif
 
-/* having set the default city, now check if there is an overriding */
-/* default from the environment. */
-   if (NULL != (s = getenv(ENV_CITY)))
-      localize_to_city(s);
-
+   /* having set the default city, now check if there is an overriding */
+   /* default from the environment. */
+   if (NULL != (cityName = getenv(ENV_CITY)))
+      localize_to_city(cityName);
 }
 
 
-
-void
-  handleArgs(argc, argv)
-     int argc;
-     char *argv[];
+/* FIX: this wants to become gnu-ish */
+void handleArgs(int argc, char *argv[])
 {
    char dummy[10];
    date_t greg_today;
@@ -432,88 +353,94 @@ void
 
    Getopt(argc, argv, "", 1);
    while (EOF !=
-	(option = Getopt(argc, argv, "acC:dDehHI:il:L:m:orsStTwxyY:z:Z:", 0)))
+          (option = Getopt(argc, argv, "acC:dDef:hHI:il:L:m:orsStTwxyY:z:Z:8", 0)))
    {
-      switch ((char) option)
-      {
-	case 'a':		/* ashkenazis hebrew */
+       switch ((char) option)
+       {
+       case 'a':		/* ashkenazis hebrew */
 	   ashkenazis_sw = 1;
 	   break;
-	case 'c':		/* calculate candlelighting times on fridays */
+       case '8':		/* ashkenazis hebrew */
+	   iso8859_8_sw = 1;
+	   break;
+       case 'c':		/* calculate candlelighting times on fridays */
 	   candleLighting_sw = 1;
 	   break;
-	case 'C':
+       case 'C':
 	   localize_to_city(Optarg);
 	   candleLighting_sw = 1;
 	   break;
-	case 'd':		/* print hebrew date */
+       case 'd':		/* print hebrew date */
 	   printHebDates_sw = 1;
 	   break;
-	case 'D':		/* print hebrew date when there's */
+       case 'D':		/* print hebrew date when there's */
 	   /* something else to print */
 	   printSomeHebDates_sw = 1;
 	   break;
-	case 'I':		/* input file */
+       case 'I':		/* input file */
 	   inputFile_sw = 1;
 	   if (!(inFile = fopen(Optarg, "r")))
-	      die("could not open input file %s.", Optarg);
+               die("could not open input file %s.", Optarg);
 	   break;
-	case 'e':		/* european date format */
+       case 'e':		/* european date format */
 	   euroDates_sw = 1;
 	   break;
-	case 'h':		/* suppress internal holidays */
+       case 'f':		/* output format */
+           formatString = strdup(Optarg);
+	   break;
+       case 'h':		/* suppress internal holidays */
 	   noHolidays_sw = 1;
 	   break;
-	case 'H':		/* suppress use hebrew range dates */
+       case 'H':		/* suppress use hebrew range dates */
 	   hebrewDates_sw = 1;
 	   break;
-	case 'i':		/* use Israeli sedra scheme */
+       case 'i':		/* use Israeli sedra scheme */
 	   israel_sw = 1;
 	   break;
-	case 'l':		/* latitude */
+       case 'l':		/* latitude */
 	   latdeg = latmin = 0;
 	   latp = 1;
 	   if (sscanf(Optarg, "%d,%d", &latdeg, &latmin) < 2)
-	      die("unable to read latitude argument: %s", Optarg);
+               die("unable to read latitude argument: %s", Optarg);
 	   if ((abs(latdeg) > 90) ||
 	       latmin > 60 || latmin < 0)
 	      die("latitude argument out of range", "");
 	   latmin = abs(latmin);
 	   if (latdeg < 0)
-	      latmin = -latmin;
+               latmin = -latmin;
 	   break;
-	case 'L':		/* longitude */
+       case 'L':		/* longitude */
 	   longdeg = longmin = 0;
 	   longp = 1;
 	   if (sscanf(Optarg, "%d,%d", &longdeg, &longmin) < 2)
-	      die("unable to read longitude argument: %s", Optarg);
+               die("unable to read longitude argument: %s", Optarg);
 	   if ((abs(longdeg) > 180) ||
 	       longmin > 60 || longmin < 0)
 	      die("longitude argument out of range", "");
 	   longmin = abs(longmin);
 	   if (longdeg < 0)
-	      longmin = -longmin;
+               longmin = -longmin;
 	   break;
-	case 'm':		/* havdalah_minutes */
+       case 'm':		/* havdalah_minutes */
 	   if (!(sscanf(Optarg, "%d", &havdalah_minutes) == 1))
-	      die("unable to read havdalah_minutes argument: %s", Optarg);
+               die("unable to read havdalah_minutes argument: %s", Optarg);
 	   break;
-	case 'o':		/* print the omer */
+       case 'o':		/* print the omer */
 	   printOmer_sw = 1;
 	   break;
-	case 'r':		/* Tab-delineated Format */
+       case 'r':		/* Tab-delineated Format */
 	   tabs_sw = 1;
 	   break;
-	case 's':		/* print sedrot */
+       case 's':		/* print sedrot */
 	   sedrot_sw = 1;
 	   break;
-	case 'S':		/* print sedra every day. */
+       case 'S':		/* print sedra every day. */
 	   sedraAllWeek_sw = 1;
 	   break;
-	case 'T':		/* do hebcal for today, omit gregorian date. */
+       case 'T':		/* do hebcal for today, omit gregorian date. */
 	   noGreg_sw = 1;
 /*** note this falls through to 't' case ***/
-	case 't':		/* do hebcal for today. */
+       case 't':		/* do hebcal for today. */
 	   printHebDates_sw = 1;
 	   rangeType = TODAY;
 	   theMonth = greg_today.mm;	/* year and month specified */
@@ -521,315 +448,306 @@ void
 	   yearDirty = 1;
 	   printOmer_sw = 1;
 	   break;
-	case 'w':		/* print days of the week */
+       case 'w':		/* print days of the week */
 	   weekday_sw = 1;
 	   break;
-	case 'y':		/* Print only last 2 digits of year */
+       case 'y':		/* Print only last 2 digits of year */
 	   yearDigits_sw = 1;
 	   break;
-	case 'Y':		/* input file */
+       case 'Y':		/* input file */
 	   yahrtzeitFile_sw = 1;
 	   if (!(yFile = fopen(Optarg, "r")))
-	      die("could not open yahrtzeit input file %s.", Optarg);
+               die("could not open yahrtzeit input file %s.", Optarg);
 	   break;
-	case 'x':		/* input file */
+       case 'x':		/* input file */
 	   suppress_rosh_chodesh_sw = 1;
 	   break;
 	case 'Z':
-	   schemep = 1;
-	   sscanf(Optarg, "%s", dummy);
-	   set_DST_scheme(dummy);
-	   break;
-	   
-
-	case 'z':		/* time zone */
+            schemep = 1;
+            sscanf(Optarg, "%s", dummy);
+            set_DST_scheme(dummy);
+            break;
+            
+            
+       case 'z':		/* time zone */
 	   if (!(sscanf(Optarg, "%d", &TZ) == 1))
-	      die("unable to read time zone argument: %s", Optarg);
+               die("unable to read time zone argument: %s", Optarg);
 	   if (!schemep)
-	      DST_scheme = DST_NONE;
+               DST_scheme = DST_NONE;
 	   zonep = 1;
 	   break;
-	   
-	default:
+           
+       default:
 	   die(usage, "");
-      }
+       }
    }
    
    if (latp)
-      cityName = "User Defined City";
+       cityName = "User Defined City";
    if (latp ^ longp)
-      die("You must enter BOTH the latitude and the longitude", "");
-
+       die("You must enter BOTH the latitude and the longitude", "");
+   
    if( !strcmp(cityName, "Jerusalem" ))
-      light_offset = -40;	/* does everyone hold by this? */
+       light_offset = -40;	/* does everyone hold by this? */
 
    switch (argc - Optind)	/* suck up the date */
    {
-     case 0:			/* process this year */
-	if (hebrewDates_sw)
+   case 0:			/* process this year */
+       if (hebrewDates_sw)
 	   theYear = abs2hebrew(greg2abs(greg_today)).yy;
-	else
+       else
 	   theYear = greg_today.yy;
-	break;
-	
-     case 1:
-	if (isAllNums(argv[Optind]))
-	{
+       break;
+       
+   case 1:
+       if (isAllNums(argv[Optind]))
+       {
 	   theYear = atoi(argv[Optind]);	/* just year specified */
 	   yearDirty = 1;		/* print whole year */
-	}
-	else if (0 == istrncasecmp(5, argv[Optind], "help"))
-	{
-	   int lineNumber;
-
+       }
+       else if (0 == istrncasecmp(5, argv[Optind], "help"))
+       {
+	   size_t lineNumber;
+           
 	   for (lineNumber = 0;
 		(lineNumber < sizeof(helpArray) / sizeof(char *));
-
-		lineNumber++)
+                lineNumber++)
 	   {
 	      puts(helpArray[lineNumber]);
-	      
-	      if (0 == lineNumber % SCREEN_HEIGHT)
-	      {
-		 printf(" ---MORE---    Hit Enter To Continue....");
-		 fgets(&dummy[0], 10, stdin);
-	      }
 	   }
 	   exit(0);
-	}
-	else if (0 == istrncasecmp(3, argv[Optind], "info"))
-	{
+       }
+       else if (0 == istrncasecmp(3, argv[Optind], "info"))
+       {
 	   print_version_data();
 	   exit(0);
-	}
-	else if (0 == istrncasecmp(3, argv[Optind], "cities"))
-	{
+       }
+       else if (0 == istrncasecmp(3, argv[Optind], "cities"))
+       {
 	   print_city_data();
 	   exit(0);
-	}
-	else if (0 == istrncasecmp(3, argv[Optind], "DST"))
-	{
+       }
+       else if (0 == istrncasecmp(3, argv[Optind], "DST"))
+       {
 	   print_DST_data();
 	   exit(0);
-	}
-	else if (0 == istrncasecmp(3, argv[Optind], "copying"))
-	{
+       }
+       else if (0 == istrncasecmp(3, argv[Optind], "copying"))
+       {
 	   print_copying();
 	   exit(0);
-	}
-	else if (0 == istrncasecmp(3, argv[Optind], "warranty"))
-	{
+       }
+       else if (0 == istrncasecmp(3, argv[Optind], "warranty"))
+       {
 	   print_warranty();
 	   exit(0);
-	}
-	else
+       }
+       else
 	   die(usage, "");
-	break;
-
-     case 2:
-	if (!isAllNums(argv[Optind + 1]))
+       break;
+       
+   case 2:
+       if (!isAllNums(argv[Optind + 1]))
 	   die(usage, "");
-	theYear = atoi(argv[Optind + 1]);		/* print theMonth of theYear */
-
-	theMonth = lookup_hebrew_month(argv[Optind]);
-
-	if (theMonth)
-	{
+       theYear = atoi(argv[Optind + 1]);		/* print theMonth of theYear */
+       
+       theMonth = lookup_hebrew_month(argv[Optind]);
+       
+       if (theMonth)
+       {
 	   hebrewDates_sw = 1;	/* automagically turn it on */
 	   if (theMonth == ADAR_II && !LEAP_YR_HEB(theYear))
-	      theMonth = ADAR_I;	/* silently fix this mistake */
-	}
-	else if (isAllNums(argv[Optind]))
+               theMonth = ADAR_I;	/* silently fix this mistake */
+       }
+       else if (isAllNums(argv[Optind]))
 	   if (hebrewDates_sw)
-	      die("Don't use numbers to specify hebrew months.", "");
+               die("Don't use numbers to specify hebrew months.", "");
 	   else
 	      theMonth = atoi(argv[Optind]);	/* gregorian month */
-	else if (hebrewDates_sw)
+       else if (hebrewDates_sw)
 	   die("Unknown hebrew month: %s", argv[Optind]);
-	else
+       else
 	   die(usage, "");	/* bad gregorian month. */
-
-	Optind++;
-	yearDirty = 1;
-	rangeType = MONTH;
+       
+       Optind++;
+       yearDirty = 1;
+       rangeType = MONTH;
 	break;
-
-     case 3:
-	if (!(isAllNums(argv[Optind + 1])
-	      && isAllNums(argv[Optind + 2])))
+        
+   case 3:
+       if (!(isAllNums(argv[Optind + 1])
+             && isAllNums(argv[Optind + 2])))
 	   die(usage, "");
-	theDay = atoi(argv[Optind + 1]);	/* print theDay of theMonth */
-	theYear = atoi(argv[Optind + 2]);		/* print theMonth of theYear */
-
-	theMonth = lookup_hebrew_month(argv[Optind]);
-
-	if (theMonth)
-	{
+       theDay = atoi(argv[Optind + 1]);	/* print theDay of theMonth */
+       theYear = atoi(argv[Optind + 2]);		/* print theMonth of theYear */
+       
+       theMonth = lookup_hebrew_month(argv[Optind]);
+       
+       if (theMonth)
+       {
 	   hebrewDates_sw = 1;	/* automagically turn it on */
 	   if (theMonth == ADAR_II && !LEAP_YR_HEB(theYear))
-	      theMonth = ADAR_I;	/* silently fix this mistake */
-	}
-	else if (isAllNums(argv[Optind]))
+               theMonth = ADAR_I;	/* silently fix this mistake */
+       }
+       else if (isAllNums(argv[Optind]))
 	   if (hebrewDates_sw)
-	      die("Don't use numbers to specify hebrew months.", "");
+               die("Don't use numbers to specify hebrew months.", "");
 	   else
-	      theMonth = atoi(argv[Optind]);	/* gregorian month */
+               theMonth = atoi(argv[Optind]);	/* gregorian month */
 	else if (hebrewDates_sw)
-	   die("Unknown hebrew month: %s", argv[Optind]);
+            die("Unknown hebrew month: %s", argv[Optind]);
 	else
-	   die("bad month.%s", usage);	/* bad gregorian month. */
+            die("bad month.%s", usage);	/* bad gregorian month. */
 
-	if (theDay < 1)
+       if (theDay < 1)
 	   die("The day of the month must be greater than 0", "");
-	if (theMonth < 1)
+       if (theMonth < 1)
 	   die("The month must be greater than 0", "");
-
-	if (hebrewDates_sw)
-	{
+       
+       if (hebrewDates_sw)
+       {
 	   if (theDay > max_days_in_heb_month(theMonth, theYear))
-	      die("Sorry, there aren't that many days in %s (then)",
-		  hMonths[LEAP_YR_HEB(theYear)][theMonth]);
-	}
-	else
-	{
+               die("Sorry, there aren't that many days in %s (then)",
+                   LANGUAGE2(hMonths[LEAP_YR_HEB(theYear)][theMonth].name));
+       }
+       else
+       {
 	   if (theMonth > 12)
-	      die("The month must be less than 13", "");
+               die("The month must be less than 13", "");
 	   if (theDay > MonthLengths[LEAP(theYear)][theMonth])
-	      die("Sorry, there aren't that many days in %s (then)",
-		  eMonths[theMonth]);
+               die("Sorry, there aren't that many days in %s (then)",
+                   eMonths[theMonth]);
 	}
-
-
-	rangeType = DAY;
-	yearDirty = 1;
-	break;
-     default:
-	die(usage, "");
+       
+       
+       rangeType = DAY;
+       yearDirty = 1;
+       break;
+   default:
+       die(usage, "");
    }
 }
 
 
-int tokenize(str, pargc, argv)
-        int *pargc;
-        char *argv[], *str;
+int tokenize(char *str, int *pargc, char* argv[])
 {
-   char *strtok(), *strdup();
-   char *s;
-   
-   argv[0] = progname;
-   s = strtok(str, "\t ");
-   *pargc = 1;
-   do
-   {
-      argv[(*pargc)++] = strdup(s);
-   }
-   while ((s = strtok(NULL, "\t ")));
-
-
-   return *pargc > 1;
+/*     char *strtok(), *strdup(); */
+    char *s;
+    
+    argv[0] = progname;
+    s = strtok(str, "\t ");
+    *pargc = 1;
+    do
+    {
+        argv[(*pargc)++] = strdup(s);
+    } while ((s = strtok(NULL, "\t ")));
+    
+    
+    return *pargc > 1;
 }
 
-int main(argc, argv)
-    int argc;
-    char *argv[];
+int main(int argc, char* argv[])
 {
-   date_t tempDate;
-   long startAbs, endAbs;
-   char *envStr;
-   int envArgc;
-   char *envArgv[40];		/* this should be big enough */
+    date_t tempDate;
+    long startAbs, endAbs;
+    char *envStr;
+    int envArgc;
+    char *envArgv[40];		/* this should be big enough */
 
-   progname = argv[0];
+    progname = argv[0];
 
-   set_default_city();
-   if ((envStr = getenv(ENV_OPTS)) && strcmp(envStr, ""))
-   {
-      int i;
-      
-      tokenize(envStr, &envArgc, envArgv);
-      for (i = 1; i < argc; i++)	/* append argv onto envArgv  */
-	 envArgv[envArgc++] = argv[i];
-      handleArgs(envArgc, envArgv);
-   }
-   else
-      handleArgs(argc, argv);
+    set_default_city();
+    if ((envStr = getenv(ENV_OPTS)) && strcmp(envStr, ""))
+    {
+        int i;
 
-   tempDate.yy = theYear;
-   if (theYear < (hebrewDates_sw ? 3761 : 1))
-      die("Sorry, hebcal can only handle dates in the common era.", "");
+        tokenize(envStr, &envArgc, envArgv);
+        for (i = 1; i < argc; i++)	/* append argv onto envArgv  */
+            envArgv[envArgc++] = argv[i];
+        handleArgs(envArgc, envArgv);
+    }
+    else
+        handleArgs(argc, argv);
 
-   switch (rangeType)
-   {
-     case TODAY:
-	printHebDates_sw = 1;
-	tempDate.dd = theDay;
-	tempDate.mm = theMonth;
-	tempDate.yy = theYear;
-	startAbs = endAbs = greg2abs(tempDate);
-	break;
-     case DAY:
-	printHebDates_sw = 1;
-	tempDate.dd = theDay;
-	tempDate.mm = theMonth;
-	tempDate.yy = theYear;
-	if (hebrewDates_sw)
-	   startAbs = endAbs = hebrew2abs(tempDate);
-	else
-	   startAbs = endAbs = greg2abs(tempDate);
-	break;
-     case MONTH:
-	tempDate.dd = 1;
-	tempDate.mm = theMonth;
-	tempDate.yy = theYear;
-	if (hebrewDates_sw)
-	{
-	   startAbs = hebrew2abs(tempDate);
-	   tempDate.dd = max_days_in_heb_month(tempDate.mm, tempDate.yy);
-	   endAbs = hebrew2abs(tempDate);
-	}
-	else
-	{
-	   startAbs = greg2abs(tempDate);
-	   tempDate.dd = MonthLengths[LEAP(theYear)][theMonth];
-	   endAbs = greg2abs(tempDate);
-	}
-	break;
+    tempDate.yy = theYear;
+    if (theYear < (hebrewDates_sw ? 3761 : 1))
+        die("Sorry, hebcal can only handle dates in the common era.", "");
 
-     case YEAR:
-	if (hebrewDates_sw)
-	{
-	   tempDate.dd = 1;
-	   tempDate.mm = TISHREI;
-	   tempDate.yy = theYear;
-	   startAbs = hebrew2abs(tempDate);
+    switch (rangeType)
+    {
+    case TODAY:
+        printHebDates_sw = 1;
+        tempDate.dd = theDay;
+        tempDate.mm = theMonth;
+        tempDate.yy = theYear;
+        startAbs = endAbs = greg2abs(tempDate);
+        break;
+    case DAY:
+        printHebDates_sw = 1;
+        tempDate.dd = theDay;
+        tempDate.mm = theMonth;
+        tempDate.yy = theYear;
+        if (hebrewDates_sw)
+            startAbs = endAbs = hebrew2abs(tempDate);
+        else
+            startAbs = endAbs = greg2abs(tempDate);
+        break;
+    case MONTH:
+        tempDate.dd = 1;
+        tempDate.mm = theMonth;
+        tempDate.yy = theYear;
+        if (hebrewDates_sw)
+        {
+            startAbs = hebrew2abs(tempDate);
+            tempDate.dd = max_days_in_heb_month(tempDate.mm, tempDate.yy);
+            endAbs = hebrew2abs(tempDate);
+        }
+        else
+        {
+            startAbs = greg2abs(tempDate);
+            tempDate.dd = MonthLengths[LEAP(theYear)][theMonth];
+            endAbs = greg2abs(tempDate);
+        }
+        break;
 
-	   tempDate.yy++;
-	   endAbs = hebrew2abs(tempDate) - 1;
-	}
-	else
-	{
-	   tempDate.dd = 1;
-	   tempDate.mm = JAN;
-	   tempDate.yy = theYear;
-	   startAbs = greg2abs(tempDate);
+    case YEAR:
+        if (hebrewDates_sw)
+        {
+            tempDate.dd = 1;
+            tempDate.mm = TISHREI;
+            tempDate.yy = theYear;
+            startAbs = hebrew2abs(tempDate);
 
-	   tempDate.yy++;
-	   endAbs = greg2abs(tempDate) - 1;
-	}
-	break;
+            tempDate.yy++;
+            endAbs = hebrew2abs(tempDate) - 1;
+        }
+        else
+        {
+            tempDate.dd = 1;
+            tempDate.mm = JAN;
+            tempDate.yy = theYear;
+            startAbs = greg2abs(tempDate);
 
-     default:
-	die("Oh, NO! internal error #17q!", "");
-   }
+            tempDate.yy++;
+            endAbs = greg2abs(tempDate) - 1;
+        }
+        break;
 
-   tempDate = abs2hebrew(startAbs);
-   if (ok_to_run)
-   {
-      init_holidays(tempDate.yy);	/* load the holiday array */
-      main_calendar(startAbs, endAbs);
+    default:
+        die("Oh, NO! internal error #17q!", "");
+        /* this is dead code, but it silences some uninitialized variable 
+           warnings in gcc   */
+        startAbs = endAbs =0;
+    }
 
-      return 0;			/* success!  Kol hakavod to thorough programmers */
-   }
-   else
-      return 1;
+    tempDate = abs2hebrew(startAbs);
+    if (ok_to_run)
+    {
+        init_holidays(tempDate.yy);	/* load the holiday array */
+        main_calendar(startAbs, endAbs);
+
+        return 0;			/* success!  Kol hakavod to thorough programmers */
+    }
+    else
+        return 1;
 }
