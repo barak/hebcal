@@ -1,3 +1,9 @@
+hebcal (3.4-2) unstable; urgency=low
+
+  * Cleaned up some dh_make droppings in source package
+
+ -- Shaya Potter <spotter@cs.columbia.edu>  Sun, 22 May 2005 21:25:06 -0400
+
 hebcal (3.4-1) unstable; urgency=low
 
   * New Version (Closes: #310264)
