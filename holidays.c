@@ -5,7 +5,7 @@
 
    http://sourceforge.net/projects/hebcal
 
-   $Id: holidays.c,v 1.18 2004/02/25 05:00:14 sadinoff Exp $
+   $Id: holidays.c,v 1.21 2005/03/14 06:58:52 mradwin Exp $
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -333,15 +333,15 @@ struct variable_holiday_names {
   {{"Chanukah: 8 Candles", NULL, "\347\360\345\353\344: \347' \360\370\345\372"}},
   {{"Chanukah: 8th Day", NULL, "\347\360\345\353\344: \351\345\355 \347'"}},
   {{"Purim", NULL, "\364\345\370\351\355"}},
-  {{"Purim Katan", "Purim Koson", "\364\345\370\351\355 \367\350\357"}},
-  {{"Shabbat HaChodesh", "Shabbas HaChodesh", "\371\341\372 \344\347\343\371"}},
-  {{"Shabbat HaGadol", "Shabbas HaGadol", "\371\341\372 \344\342\343\345\354"}},
-  {{"Shabbat Hazon", "Shabbas Hazon", "\371\341\372 \344\346\345\357"}},
-  {{"Shabbat Nachamu", "Shabbas Nachamu", "\371\341\372 \360\347\356\345"}},
-  {{"Shabbat Parah", "Shabbas Parah", "\371\341\372 \364\370\344"}},
-  {{"Shabbat Shekalim", "Shabbas Shekalim", "\371\341\372 \371\367\354\351\355"}},
-  {{"Shabbat Shuva", "Shabbas Shuvah", "\371\341\372 \371\345\341\344"}},
-  {{"Shabbat Zachor", "Shabbas Zachor", "\371\341\372 \346\353\345\370"}},
+  {{"Purim Katan", "Purim Koton", "\364\345\370\351\355 \367\350\357"}},
+  {{"Shabbat HaChodesh", "Shabbos HaChodesh", "\371\341\372 \344\347\343\371"}},
+  {{"Shabbat HaGadol", "Shabbos HaGadol", "\371\341\372 \344\342\343\345\354"}},
+  {{"Shabbat Hazon", "Shabbos Hazon", "\371\341\372 \344\346\345\357"}},
+  {{"Shabbat Nachamu", "Shabbos Nachamu", "\371\341\372 \360\347\356\345"}},
+  {{"Shabbat Parah", "Shabbos Parah", "\371\341\372 \364\370\344"}},
+  {{"Shabbat Shekalim", "Shabbos Shekalim", "\371\341\372 \371\367\354\351\355"}},
+  {{"Shabbat Shuva", "Shabbos Shuvah", "\371\341\372 \371\345\341\344"}},
+  {{"Shabbat Zachor", "Shabbos Zachor", "\371\341\372 \346\353\345\370"}},
   {{"Shushan Purim", NULL, "\371\345\371\357 \364\345\370\351\355"}},
   {{"Ta'anit Bechorot", "Ta'anis Bechoros", "\372\362\360\351\372 \341\353\345\370\345\372"}},
   {{"Ta'anit Esther", "Ta'anis Esther", "\372\362\360\351\372 \340\361\372\370"}},
@@ -754,15 +754,7 @@ void init_yahrtzeits( int hyear )
             hDeath.dd = 30;
             hDeath.mm = SHVAT;
         }
-        /* If death was in a non-leap year (regular Adar), use the same day 
-	   in last month of this year (Adar or Adar II). */
-        else if (hDeath.mm == ADAR_I && !LEAP_YR_HEB (hDeath.yy))
-        {
-            hDeath.mm = MONTHS_IN_HEB (hyear);
-        }
-
-        /* In all other cases, use the normal (birthday) 
-	   anniversary of the date of death. */
+        /* In all other cases, use the normal anniversary of the date of death. */
 
         eventStr = s + index + 1; /* get the name of the event */
         /*    if (eventStr[strlen(eventStr)-1] == '\n') */

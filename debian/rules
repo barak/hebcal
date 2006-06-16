@@ -49,6 +49,8 @@ clean:
 	# Add here commands to clean up after the build process.
 	-$(MAKE) distclean
 
+	rm -f package.m4
+
 	dh_clean 
 
 install: build
@@ -59,6 +61,8 @@ install: build
 
 	# Add here commands to install the package into debian/hebcal.
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/hebcal
+	rm -f $(CURDIR)/debian/hebcal/usr/share/info/dir*
+
 
 
 # Build architecture-independent files here.

@@ -1,7 +1,8 @@
-.\" $Id: hebcal.1,v 1.2 1997/03/25 14:19:05 danny Exp $  -*- nroff -*-
-.\" Copyright(c) 1994  Danny Sadinoff
+.\" $Id: hebcal.1,v 1.7 2006/02/08 05:38:33 sadinoff Exp $  -*- nroff -*-
+.\" Copyright(c) 1994-2006  Danny Sadinoff
+.\" Portions Copyright (c) 2002 Michael J. Radwin. All Rights Reserved.
 .\" See section COPYING for conditions for redistribution
-.TH HEBCAL 1 "Hebcal Version 3.1" "Danny Sadinoff"
+.TH HEBCAL 1 "Hebcal Version 3.5" "Danny Sadinoff"
 .\" "
 .de BP
 .sp
@@ -13,7 +14,7 @@ hebcal - a Jewish calendar generator
 .SH SYNOPSIS
 .B hebcal
 [ 
-.B \-acdDehHiorsStTwy
+.B \-8acdDehHiorsStTwy
 ]
 .if n .ti +5
 .br
@@ -138,6 +139,9 @@ To get a quick\-reference on\-line help, type
 .fi
 at the command prompt.
 .SH OPTIONS
+.TP
+.B "\-8"
+Use 8-bit Hebrew (ISO-8859-8-Logical).
 .TP
 .BI "\-a"
 Use Ashkenazis hebrew.
@@ -442,6 +446,9 @@ Danny Sadinoff
 .SH SEE ALSO
 calendar(1), emacs(1), hcal(1), hdate(1), omer(1), remind(1), rise(1)
 .PP
+The latest version of the code will be available from 
+http://sourceforge.net/projects/hebcal
+.PP
 The original motivation for the algorithms in this
 program was the \c
 .I "Tur Shulchan Aruch.  "
@@ -513,16 +520,29 @@ The sunup/sundown routines aren't accurate enough.  If you enter
 geographic coordinates above the artic circle or antarctic circle, the
 times are guaranteed to be wrong.
 .PP
-Hebcal performs no checking for changes between the julian and
-gregorian calendar, so secular dates before 1752 are untrustworthy.
+Hebcal only translates between the Gregorian calendar
+and the Jewish calendar. This means that the results
+will be at least partly useless where and when the
+gregorian calendar was not used, i.e. before the
+1752 in Britain and before circa 1918 in Russia.  
+See the wikipedia entry for a splendid chart of the changeover from 
+the Julian to the Gregorian calendars in various places. 
 .PP
 Hebcal cannot handle date computations before 2 C.E.  sorry.
+.PP
+Daylight-Savings time rules are as up-to-date as a nonpaying job
+allows.  US DST rules are correct only back to 1966.  
+.PP
+Hebcal assumes that the Energy Policy Act of 2005, which changes the DST 
+rules in the US will go into effect, even though congress may still revert it.
 .SH BUG REPORTS TO
 Danny Sadinoff
 .br
-sadinoff@panix.com 
+danny@sadinoff.com
 .SH COPYING
-Copyright (c) 1994 Danny Sadinoff
+Copyright (c) 1994-2004 Danny Sadinoff
+.br
+Portions Copyright (c) 2002 Michael J. Radwin. All Rights Reserved.
 .PP
 Permission is granted to make and distribute verbatim copies of
 this manual provided the copyright notice and this permission notice

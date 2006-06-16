@@ -1,3 +1,13 @@
+hebcal (3.5-1) unstable; urgency=low
+
+  * new release
+    "This is a maintenance release, with a few updates, notably support for
+     the 2007 DST changeover."
+
+  * Fix's info file bug (closes: #373865), by including Ubuntu's fix.
+
+ -- Shaya Potter <spotter@cs.columbia.edu>  Thu, 15 Jun 2006 21:33:17 -0400
+
 hebcal (3.4-2) unstable; urgency=low
 
   * Cleaned up some dh_make droppings in source package
