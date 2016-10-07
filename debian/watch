@@ -1,0 +1,2 @@
+version=4
+https://github.com/hebcal/hebcal/releases .*/archive/v?(\d\S+)\.tar\.(?:bz2|gz|xz)
