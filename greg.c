@@ -1,10 +1,9 @@
 /*
-   $Id: greg.c,v 1.7 2004/02/25 04:51:58 sadinoff Exp $
    Hebcal - A Jewish Calendar Generator
    Copyright (C) 1994-2004  Danny Sadinoff
    Portions Copyright (c) 2002 Michael J. Radwin. All Rights Reserved.
 
-   http://sourceforge.net/projects/hebcal
+   https://github.com/hebcal/hebcal
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -25,7 +24,7 @@
  */
 
 
-#include "mystdio.h"
+#include <stdio.h>
 #include "danlib.h"
 #include <time.h>
 #include <string.h>
@@ -50,6 +49,15 @@ int MonthLengths[][13] =
     {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
     {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 };
+
+int getMonthLength(int year, int month)
+{
+    if (month < 0 || month > 13)
+    {
+        return 0;
+    }
+    return MonthLengths[LEAP (year)][month];
+}
 
 const char *ShortDayNames[] =
 {

@@ -1,9 +1,9 @@
 /*
    Hebcal - A Jewish Calendar Generator
-   Copyright (C) 1994  Danny Sadinoff
+   Copyright (C) 1994-2012  Danny Sadinoff
    Portions Copyright (c) 2002 Michael J. Radwin. All Rights Reserved.
 
-   http://sourceforge.net/projects/hebcal
+   https://github.com/hebcal/hebcal
      
      This program is free software; you can redistribute it and/or
      modify it under the terms of the GNU General Public License
@@ -29,6 +29,9 @@
 #include "stdio.h"
 #include "greg.h"
 #include "myerror.h"
+#include "timelib.h"
+#include "config.h"
+#include "translations.h"
 
 #ifndef ENV_CITY_STR
 #define ENV_CITY_STR "HC_CITY"
@@ -39,50 +42,48 @@
 #define MAX_LINE_LEN 100
 #define LEAP_YR_HEB(x) ((1L + (long)(x)* 7L) % 19L < 7L ? 1 : 0)
 #define MONTHS_IN_HEB(x) (LEAP_YR_HEB(x) ? 13 :12)
-#define LANGUAGE(str) (ashkenazis_sw && (str)[1] ? ((str)[1]) : ((str)[0]))
-#define LANGUAGE2(str) (iso8859_8_sw && (str)[2] ? ((str)[2]) : (ashkenazis_sw && (str)[1] ? ((str)[1]) : ((str)[0])))
+#define LANGUAGE2(str) ((char *)lookup_translation(str))
 
 extern FILE *inFile, *yFile;
 
-extern int DST_scheme,
+extern int
     ashkenazis_sw, 
-    iso8859_8_sw,
+    dafYomi_sw,
     candleLighting_sw, 
     euroDates_sw,
     hebrewDates_sw,
     inputFile_sw,
     israel_sw,
-    latdeg, latmin, latsec, longdeg, longmin, longsec, TZ, 
+    latdeg, latmin, latsec, longdeg, longmin, longsec,
     latlong_sw,
     printOmer_sw,
     printHebDates_sw,
     printSomeHebDates_sw,
+    printMolad_sw,
+    printSunriseSunset_sw,
     sedraAllWeek_sw, 
     sedrot_sw, 
     noGreg_sw, 
     noHolidays_sw,
     suppress_rosh_chodesh_sw,
+    suppressModern_sw,
     tabs_sw,
     weekday_sw, 
+    abbrev_sw,
     yearDigits_sw,
-    yahrtzeitFile_sw;
+    yahrtzeitFile_sw,
+   default_zemanim;
+extern int twentyFourHour_sw;
+
+extern timelib_tzinfo *TZ_INFO;
 
 extern int havdalah_minutes,
    light_offset;
-
-extern char* formatString;
-
 
 typedef struct hebrew_year {
    int first_day_of_week;
    int leap_p;
 } year_t;
-
-#define DST_USOFA 0
-#define DST_NONE 1
-#define DST_ISRAEL 2
-#define DST_EU 3
-#define DST_AUNZ 4
 
 /* holiday typemask entries */
 #define USER_EVENT 1
@@ -91,10 +92,11 @@ typedef struct hebrew_year {
 #define CHUL_ONLY 8		/* chutz l'aretz (Diaspora) */
 #define IL_ONLY 16		/* b'aretz (Israel) */
 #define LIGHT_CANDLES_TZEIS 32
+#define CHANUKAH_CANDLES 64
 
 typedef struct hinode{   /* holiday input structure */
     date_t date;
-    char *(name[3]);
+    char *name;
     unsigned int typeMask;
     struct hinode *next;
 } holinput_t, *holinputp_t;
@@ -104,6 +106,23 @@ typedef struct hsnode{  /* holiday storage structure */
     unsigned int typeMask;
     struct hsnode *next;
 } holstore_t, *holstorep_t;
+
+
+#define ZMAN_ALOT_HASHACHAR (1 <<  0)
+#define ZMAN_MISHEYAKIR     (1 <<  1)
+#define ZMAN_SUNRISE        (1 <<  2)
+#define ZMAN_SZKS           (1 <<  3)
+#define ZMAN_TEFILAH        (1 <<  4)
+#define ZMAN_CHATZOT        (1 <<  5)
+#define ZMAN_MINCHA_GEDOLA  (1 <<  6)
+#define ZMAN_MINCHA_KETANA  (1 <<  7)
+#define ZMAN_PLAG_HAMINCHA  (1 <<  8)
+#define ZMAN_SUNSET         (1 <<  9)
+#define ZMAN_CANDLES_BEFORE (1 << 10)
+#define ZMAN_CANDLES_AFTER  (1 << 11)
+#define ZMAN_TZAIT_42       (1 << 12)
+#define ZMAN_TZAIT_72       (1 << 13)
+#define ZMAN_HAVDALAH       (1 << 14)
 
 year_t yearData( int );
 date_t nextHebDate( date_t );
@@ -115,7 +134,8 @@ int getHebHolidays( date_t, struct hsnode ** );
 void incHebGregDate( date_t *, date_t *,long *,int *,year_t * );
 void PrintGregDate( date_t );
 void main_calendar( long,long );
-void print_candlelighting_times( int, int, date_t, int );
+void print_candlelighting_times( int, int, date_t );
+void print_sunrise_sunset(date_t);
 void reset_Omer( int hYear );
 
 extern const char * license[];

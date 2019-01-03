@@ -2,14 +2,16 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.57)
-AC_INIT(hebcal,3.5,hebcal-bugs@sadinoff.com)
+AC_INIT(hebcal,4.15,hebcal-bugs@sadinoff.com)
+AM_MAINTAINER_MODE([disable])
+AM_INIT_AUTOMAKE([foreign no-dependencies no-installinfo])
 AC_CONFIG_SRCDIR([common.c])
-dnl #AM_INIT_AUTOMAKE([no-dependencies check-news])
-AM_INIT_AUTOMAKE([check-news])
 AM_CONFIG_HEADER([config.h])
 
 # Checks for programs.
 AC_PROG_CC
+
+AC_CHECK_HEADERS([getopt.h])
 
 # Checks for libraries.
 dnl AC_CHECK_LIB(m, sin)
@@ -35,10 +37,10 @@ AC_ARG_WITH(default-city,
                                   If unspecified, the default city will be "New York"]],
              AC_DEFINE_UNQUOTED(CITY,"$withval",["The Default City"]),
              AC_DEFINE(CITY,"New_York",["The default city"]))
-dnl x#AC_ARG_VAR(default_city,[The default city value])
 
+AC_CONFIG_FILES([hebcal.1])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([tests/Makefile])
-AC_CONFIG_FILES([doc/Makefile])
+
 
 AC_OUTPUT

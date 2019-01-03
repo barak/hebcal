@@ -1,7 +1,7 @@
 /* Copyright(c) 1994  Danny Sadinoff
    Portions Copyright (c) 2002 Michael J. Radwin. All Rights Reserved.
 
-   http://sourceforge.net/projects/hebcal
+   https://github.com/hebcal/hebcal
 
   See section COPYING for conditions for redistribution
 */
@@ -26,7 +26,7 @@
 
 typedef struct hmonth 
 {
-    const char *(name[3]);
+    const char *name;
 } hmonth_t;
 
 typedef hmonth_t hmonths_t [][15];
@@ -38,7 +38,7 @@ typedef struct molad {
     int hour, chalakim;
 } molad_t;
 
-molad_t molad(int, int);
+molad_t get_molad(int, int);
 date_t abs2hebrew(long);
 long hebrew2abs(date_t);
 int days_in_heb_year(int);

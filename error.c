@@ -1,5 +1,4 @@
 /*
-   $Id: error.c,v 1.5 2004/02/25 04:53:33 sadinoff Exp $
    Hebcal - A Jewish Calendar Generator
    Copyright (C) 1994-2004  Danny Sadinoff
 

@@ -1,5 +1,4 @@
 /*
-   $Id: danlib.c,v 1.6 2004/02/25 04:49:35 sadinoff Exp $
    Hebcal - A Jewish Calendar Generator
    Copyright (C) 1994-2004  Danny Sadinoff
 
@@ -85,12 +84,16 @@ int isAllNums ( const char *s )
   return (n == len);
 }
 
+static int tensDigit (int i)
+{
+    return (i % 100) / 10;
+}
 
-/* returns he proper ordinal suffix of a number */
+/* returns the proper ordinal suffix of a number */
 const char *
     numSuffix (int i)
 {
-    if ((i / 10) == 1)
+    if (tensDigit(i) == 1)
         return "th";
     switch (i % 10)
     {

@@ -3,9 +3,7 @@
    Copyright (C) 1994  Danny Sadinoff
    Portions Copyright (c) 2002 Michael J. Radwin. All Rights Reserved.
 
-   http://sourceforge.net/projects/hebcal
-
-   $Id: holidays.c,v 1.21 2005/03/14 06:58:52 mradwin Exp $
+   https://github.com/hebcal/hebcal
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -21,7 +19,7 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-   Danny Sadinoff can be reached at 
+   Danny Sadinoff can be reached at
    danny@sadinoff.com
 
  */
@@ -35,9 +33,11 @@
 #include "hebcal.h"
 #include "common.h"
 #include "danlib.h"
-#include "rise.h"
+#include "greg.h"
 
-#define NM_LEN 60
+#define _(String) lookup_translation(String)
+
+#define NM_LEN MAX_LINE_LEN
 
 holstorep_t holidays[14][MAXDAYS], var_holidays[14][MAXDAYS];
 
@@ -48,253 +48,265 @@ holinput_t inp_holidays[] =
 {
    {
       {TISHREI, 2, IGNORE_YEAR},
-      {"Rosh Hashana II", NULL, "\370\340\371 \344\371\360\344 \351\345\355 \341'"},
+      "Rosh Hashana II",
       YOM_TOV_ENDS,
       NULL
    },
    {
       {TISHREI, 9, IGNORE_YEAR},
-      {"Erev Yom Kippur", NULL, "\362\370\341 \351\345\355 \353\364\345\370"},
+      "Erev Yom Kippur",
       LIGHT_CANDLES,
       NULL
    },
    {
       {TISHREI, 10, IGNORE_YEAR},
-      {"Yom Kippur", NULL, "\351\345\355 \353\364\345\370"},
+      "Yom Kippur",
       YOM_TOV_ENDS,
       NULL
    },
 
    {
       {TISHREI, 14, IGNORE_YEAR},
-      {"Erev Sukkot", "Erev Sukkos", "\362\370\341 \361\345\353\345\372"},
+      "Erev Sukkot",
       LIGHT_CANDLES,
       NULL
    },
    {
       {TISHREI, 15, IGNORE_YEAR},
-      {"Sukkot I", "Sukkos I", "\361\345\353\345\372 \351\345\355 \340'"},
-      CHUL_ONLY,
+      "Sukkot I",
+      CHUL_ONLY|LIGHT_CANDLES_TZEIS,
       NULL
    },
    {
       {TISHREI, 15, IGNORE_YEAR},
-      {"Sukkot I", "Sukkos I", "\361\345\353\345\372 \351\345\355 \340'"},
+      "Sukkot I",
       YOM_TOV_ENDS|IL_ONLY,
       NULL
    },
    {
       {TISHREI, 16, IGNORE_YEAR},
-      {"Sukkot II", "Sukkos II", "\361\345\353\345\372 \351\345\355 \341'"},
+      "Sukkot II",
       YOM_TOV_ENDS|CHUL_ONLY,
       NULL
    },
    {
       {TISHREI, 16, IGNORE_YEAR},
-      {"Sukkot II (CH''M)", "Sukkos II (CH''M)", "\361\345\353\345\372 \351\345\355 \341' (\347\354 \344\356\345\362\343)"},
+      "Sukkot II (CH''M)",
       IL_ONLY,
       NULL
    },
    {
       {TISHREI, 17, IGNORE_YEAR},
-      {"Sukkot III (CH''M)", "Sukkos III (CH''M)", "\361\345\353\345\372 \351\345\355 \342' (\347\354 \344\356\345\362\343)"},
+      "Sukkot III (CH''M)",
       0,
       NULL
    },
    {
       {TISHREI, 18, IGNORE_YEAR},
-      {"Sukkot IV (CH''M)", "Sukkos IV (CH''M)", "\361\345\353\345\372 \351\345\355 \343' (\347\354 \344\356\345\362\343)"},
+      "Sukkot IV (CH''M)",
       0,
       NULL
    },
    {
       {TISHREI, 19, IGNORE_YEAR},
-      {"Sukkot V (CH''M)", "Sukkos V (CH''M)", "\361\345\353\345\372 \351\345\355 \344' (\347\354 \344\356\345\362\343)"},
+      "Sukkot V (CH''M)",
       0,
       NULL
    },
    {
       {TISHREI, 20, IGNORE_YEAR},
-      {"Sukkot VI (CH''M)", "Sukkos VI (CH''M)", "\361\345\353\345\372 \351\345\355 \345' (\347\354 \344\356\345\362\343)"},
+      "Sukkot VI (CH''M)",
       0,
       NULL
    },
    {
       {TISHREI, 21, IGNORE_YEAR},
-      {"Sukkot VII (Hoshana Raba)", "Sukkos VII (Hoshana Raba)", "\361\345\353\345\372 \351\345\355 \346' (\344\345\371\360\340 \370\341\344)"},
+      "Sukkot VII (Hoshana Raba)",
       LIGHT_CANDLES,
       NULL
    },
    {
       {TISHREI, 22, IGNORE_YEAR},
-      {"Shmini Atzeret", "Shmini Atzeres", "\371\356\351\360\351 \362\366\370\372"},
-      CHUL_ONLY,
+      "Shmini Atzeret",
+      CHUL_ONLY|LIGHT_CANDLES_TZEIS,
       NULL
    },
    {
       {TISHREI, 22, IGNORE_YEAR},
-      {"Shmini Atzeret", "Shmini Atzeres", "\371\356\351\360\351 \362\366\370\372"},
+      "Shmini Atzeret",
       IL_ONLY|YOM_TOV_ENDS,
       NULL
    },
    {
       {TISHREI, 23, IGNORE_YEAR},
-      {"Simchat Torah", "Simchas Torah", "\371\356\347\372 \372\345\370\344"},
+      "Simchat Torah",
       CHUL_ONLY|YOM_TOV_ENDS,
       NULL
    },
 
    {
       {KISLEV, 24, IGNORE_YEAR},
-      {"Chanukah: 1 Candle", NULL, "\347\360\345\353\344: \340' \360\370"},
-      0,
+      "Chanukah: 1 Candle",
+      CHANUKAH_CANDLES,
       NULL
    },
    {
       {KISLEV, 25, IGNORE_YEAR},
-      {"Chanukah: 2 Candles", NULL, "\347\360\345\353\344: \341' \360\370\345\372"},
-      0,
+      "Chanukah: 2 Candles",
+      CHANUKAH_CANDLES,
       NULL
    },
    {
       {KISLEV, 26, IGNORE_YEAR},
-      {"Chanukah: 3 Candles", NULL, "\347\360\345\353\344: \342' \360\370\345\372"},
-      0,
+      "Chanukah: 3 Candles",
+      CHANUKAH_CANDLES,
       NULL
    },
    {
       {KISLEV, 27, IGNORE_YEAR},
-      {"Chanukah: 4 Candles", NULL, "\347\360\345\353\344: \343' \360\370\345\372"},
-      0,
+      "Chanukah: 4 Candles",
+      CHANUKAH_CANDLES,
       NULL
    },
    {
       {KISLEV, 28, IGNORE_YEAR},
-      {"Chanukah: 5 Candles", NULL, "\347\360\345\353\344: \344' \360\370\345\372"},
-      0,
+      "Chanukah: 5 Candles",
+      CHANUKAH_CANDLES,
       NULL
    },
    {
       {KISLEV, 29, IGNORE_YEAR},
-      {"Chanukah: 6 Candles", NULL, "\347\360\345\353\344: \345' \360\370\345\372"},
-      0,
+      "Chanukah: 6 Candles",
+      CHANUKAH_CANDLES,
       NULL
    },
    {
       {SHVAT, 15, IGNORE_YEAR},
-      {"Tu B'Shvat", NULL, "\350\"\345 \341\371\341\350"},
+      "Tu BiShvat",
       0,
       NULL
    },
    {
       {NISAN, 14, IGNORE_YEAR},
-      {"Erev Pesach", NULL, "\362\370\341 \364\361\347"},
+      "Erev Pesach",
       LIGHT_CANDLES,
       NULL
    },
    {
       {NISAN, 15, IGNORE_YEAR},
-      {"Pesach I", NULL, "\364\361\347 \351\345\355 \340'"},
-      CHUL_ONLY,
+      "Pesach I",
+      CHUL_ONLY|LIGHT_CANDLES_TZEIS,
       NULL
    },
    {
       {NISAN, 15, IGNORE_YEAR},
-      {"Pesach I", NULL, "\364\361\347 \351\345\355 \340'"},
+      "Pesach I",
       IL_ONLY|YOM_TOV_ENDS,
       NULL
    },
    {
       {NISAN, 16, IGNORE_YEAR},
-      {"Pesach II", NULL, "\364\361\347\351\345\355 \341'"},
+      "Pesach II",
       CHUL_ONLY|YOM_TOV_ENDS,
       NULL
    },
    {
       {NISAN, 16, IGNORE_YEAR},
-      {"Pesach II (CH''M)", NULL, "\364\361\347 \351\345\355 \341' (\347\354 \344\356\345\362\343)"},
+      "Pesach II (CH''M)",
       IL_ONLY,
       NULL
    },
    {
       {NISAN, 17, IGNORE_YEAR},
-      {"Pesach III (CH''M)", NULL, "\364\361\347 \351\345\355 \342' (\347\354 \344\356\345\362\343)"},
+      "Pesach III (CH''M)",
       0,
       NULL
    },
    {
       {NISAN, 18, IGNORE_YEAR},
-      {"Pesach IV (CH''M)", NULL, "\364\361\347 \351\345\355 \343' (\347\354 \344\356\345\362\343)"},
+      "Pesach IV (CH''M)",
       0,
       NULL
    },
 
    {
       {NISAN, 19, IGNORE_YEAR},
-      {"Pesach V (CH''M)", NULL, "\364\361\347 \351\345\355 \344' (\347\354 \344\356\345\362\343)"},
+      "Pesach V (CH''M)",
       0,
       NULL
    },
    {
       {NISAN, 20, IGNORE_YEAR},
-      {"Pesach VI (CH''M)", NULL, "\364\361\347 \351\345\355 \345' (\347\354 \344\356\345\362\343)"},
+      "Pesach VI (CH''M)",
       LIGHT_CANDLES,
       NULL
    },
    {
       {NISAN, 21, IGNORE_YEAR},
-      {"Pesach VII", NULL, "\364\361\347 \351\345\355 \346'"},
-      CHUL_ONLY,
+      "Pesach VII",
+      CHUL_ONLY|LIGHT_CANDLES_TZEIS,
       NULL
    },
    {
       {NISAN, 21, IGNORE_YEAR},
-      {"Pesach VII", NULL, "\364\361\347 \351\345\355 \346'"},
+      "Pesach VII",
       IL_ONLY|YOM_TOV_ENDS,
       NULL
    },
    {
       {NISAN, 22, IGNORE_YEAR},
-      {"Pesach VIII", NULL, "\364\361\347 \351\345\355 \347'"},
+      "Pesach VIII",
       CHUL_ONLY|YOM_TOV_ENDS,
       NULL
    },
 
    {
+      {IYYAR, 14, IGNORE_YEAR},
+      "Pesach Sheni",
+      0,
+      NULL
+   },
+
+   {
       {IYYAR, 18, IGNORE_YEAR},
-      {"Lag B'Omer", NULL, "\354\"\342 \341\362\345\356\370"},
+      "Lag BaOmer",
       0,
       NULL
    },
 
    {
       {SIVAN, 5, IGNORE_YEAR},
-      {"Erev Shavuot", "Erev Shavuos", "\362\370\341 \371\341\345\362\345\372"},
+      "Erev Shavuot",
       LIGHT_CANDLES,
       NULL
    },
    {
       {SIVAN, 6, IGNORE_YEAR},
-      {"Shavuot I", "Shavuos I", "\371\341\345\362\345\372 \351\345\355 \340'"},
-      CHUL_ONLY,
+      "Shavuot I",
+      CHUL_ONLY|LIGHT_CANDLES_TZEIS,
       NULL
    },
    {
       {SIVAN, 6, IGNORE_YEAR},
-      {"Shavuot I", "Shavuos I", "\371\341\345\362\345\372 \351\345\355 \340'"},
+      "Shavuot I",
       IL_ONLY|YOM_TOV_ENDS,
       NULL
    },
    {
       {SIVAN, 7, IGNORE_YEAR},
-      {"Shavuot II", "Shavuos II", "\371\341\345\362\345\372 \351\345\355 \341'"},
+      "Shavuot II",
       CHUL_ONLY|YOM_TOV_ENDS,
       NULL
    },
-
+   {
+      {AV, 15, IGNORE_YEAR},
+      "Tu B'Av",
+      0,
+      NULL
+   },
    {
       {ELUL, 29, IGNORE_YEAR},
-      {"Erev Rosh Hashana", NULL, "\362\370\341 \370\340\371 \344\371\360\344"},
+      "Erev Rosh Hashana",
       LIGHT_CANDLES,
       NULL
    }
@@ -308,7 +320,7 @@ holinput_t inp_holidays[] =
 #define HOLIDAY_PURIM_KATAN     LANGUAGE2(var_hol_names[5].name)
 #define HOLIDAY_SHABBAT_HACHODESH       LANGUAGE2(var_hol_names[6].name)
 #define HOLIDAY_SHABBAT_HAGADOL LANGUAGE2(var_hol_names[7].name)
-#define HOLIDAY_SHABBAT_HAZON   LANGUAGE2(var_hol_names[8].name)
+#define HOLIDAY_SHABBAT_CHAZON   LANGUAGE2(var_hol_names[8].name)
 #define HOLIDAY_SHABBAT_NACHAMU LANGUAGE2(var_hol_names[9].name)
 #define HOLIDAY_SHABBAT_PARAH   LANGUAGE2(var_hol_names[10].name)
 #define HOLIDAY_SHABBAT_SHEKALIM        LANGUAGE2(var_hol_names[11].name)
@@ -324,34 +336,44 @@ holinput_t inp_holidays[] =
 #define HOLIDAY_YOM_HASHOAH     LANGUAGE2(var_hol_names[21].name)
 #define HOLIDAY_YOM_HAZIKARON   LANGUAGE2(var_hol_names[22].name)
 #define HOLIDAY_YOM_YERUSHALAYIM   LANGUAGE2(var_hol_names[23].name)
+#define HOLIDAY_EREV_PURIM   LANGUAGE2(var_hol_names[24].name)
+#define HOLIDAY_EREV_TISH_A_B_AV   LANGUAGE2(var_hol_names[25].name)
+#define HOLIDAY_LEIL_SELICHOT      LANGUAGE2(var_hol_names[26].name)
+#define HOLIDAY_SIGD      LANGUAGE2(var_hol_names[27].name)
+#define HOLIDAY_YOM_HAALIYAH      LANGUAGE2(var_hol_names[28].name)
 
 struct variable_holiday_names {
-   char *(name[3]);
+   const char *name;
 } var_hol_names[] = {
-  {{"Asara B'Tevet", NULL, "\362\371\370\344 \341\350\341\372"}},
-  {{"Chanukah: 7 Candles", NULL, "\347\360\345\353\344: \346' \360\370\345\372"}},
-  {{"Chanukah: 8 Candles", NULL, "\347\360\345\353\344: \347' \360\370\345\372"}},
-  {{"Chanukah: 8th Day", NULL, "\347\360\345\353\344: \351\345\355 \347'"}},
-  {{"Purim", NULL, "\364\345\370\351\355"}},
-  {{"Purim Katan", "Purim Koton", "\364\345\370\351\355 \367\350\357"}},
-  {{"Shabbat HaChodesh", "Shabbos HaChodesh", "\371\341\372 \344\347\343\371"}},
-  {{"Shabbat HaGadol", "Shabbos HaGadol", "\371\341\372 \344\342\343\345\354"}},
-  {{"Shabbat Hazon", "Shabbos Hazon", "\371\341\372 \344\346\345\357"}},
-  {{"Shabbat Nachamu", "Shabbos Nachamu", "\371\341\372 \360\347\356\345"}},
-  {{"Shabbat Parah", "Shabbos Parah", "\371\341\372 \364\370\344"}},
-  {{"Shabbat Shekalim", "Shabbos Shekalim", "\371\341\372 \371\367\354\351\355"}},
-  {{"Shabbat Shuva", "Shabbos Shuvah", "\371\341\372 \371\345\341\344"}},
-  {{"Shabbat Zachor", "Shabbos Zachor", "\371\341\372 \346\353\345\370"}},
-  {{"Shushan Purim", NULL, "\371\345\371\357 \364\345\370\351\355"}},
-  {{"Ta'anit Bechorot", "Ta'anis Bechoros", "\372\362\360\351\372 \341\353\345\370\345\372"}},
-  {{"Ta'anit Esther", "Ta'anis Esther", "\372\362\360\351\372 \340\361\372\370"}},
-  {{"Tish'a B'Av", NULL, "\372\371\362\344 \341\340\341"}},
-  {{"Tzom Gedaliah", NULL, "\366\345\355 \342\343\354\351\344"}},
-  {{"Tzom Tammuz", NULL, "\366\345\355 \372\356\345\346"}},
-  {{"Yom HaAtzma'ut", NULL, "\351\345\355 \344\362\366\356\340\345\372"}},
-  {{"Yom HaShoah", NULL, "\351\345\355 \344\371\345\340\344"}},
-  {{"Yom HaZikaron", NULL, "\351\345\355 \344\346\353\370\345\357"}},
-  {{"Yom Yerushalayim", NULL, "\351\345\355 \351\370\345\371\354\351\355"}},
+    {"Asara B'Tevet"},
+    {"Chanukah: 7 Candles"},
+    {"Chanukah: 8 Candles"},
+    {"Chanukah: 8th Day"},
+    {"Purim"},
+    {"Purim Katan"},
+    {"Shabbat HaChodesh"},
+    {"Shabbat HaGadol"},
+    {"Shabbat Chazon"},
+    {"Shabbat Nachamu"},
+    {"Shabbat Parah"},
+    {"Shabbat Shekalim"},
+    {"Shabbat Shuva"},
+    {"Shabbat Zachor"},
+    {"Shushan Purim"},
+    {"Ta'anit Bechorot"},
+    {"Ta'anit Esther"},
+    {"Tish'a B'Av"},
+    {"Tzom Gedaliah"},
+    {"Tzom Tammuz"},
+    {"Yom HaAtzma'ut"},
+    {"Yom HaShoah"},
+    {"Yom HaZikaron"},
+    {"Yom Yerushalayim"},
+    {"Erev Purim"},
+    {"Erev Tish'a B'Av"},
+    {"Leil Selichot"},
+    {"Sigd"},
+    {"Yom HaAliyah"},
 };
 
 /*-------------------------------------------------------------------------*/
@@ -371,20 +393,20 @@ holstorep_t getHolstorep( void )
 
 /* pushes a copy of a holiday on to a holiday     */
 /* list, returning the typemask of the pushed element */
-int PushHoliday( 
+int PushHoliday(
     holstorep_t hp, /* the holiday to be added */
     holstorep_t *lp         /* pointer to the list to be added to. */
     )
 {
     holstorep_t temp;
-    
+
     temp = getHolstorep ();
     initStr (&temp->name, MAX_LINE_LEN);
     strcpy (temp->name, hp->name);
     temp->typeMask = hp->typeMask;
-    
+
     if ( ! *lp )     /* if there are no holidays here yet, start a new bucket */
-        *lp = temp;        
+        *lp = temp;
     else
     {
         temp->next = *lp;         /* put hp at the head of the list */
@@ -400,44 +422,46 @@ static void load_variable_holidays( int hYear )
     date_t tempDt;
     long int roshHashana, passover, tishaBav, tevet10;
     holstorep_t tmpholp;
-    
+
     tempDt.yy = hYear;
     tempDt.mm = TISHREI;
     tempDt.dd = 1;
     roshHashana = hebrew2abs (tempDt);
-    
+
     tempDt.yy = hYear;
     tempDt.mm = TEVET;
     tempDt.dd = 10;
     tevet10 = hebrew2abs (tempDt);
-    
+
     tempDt.mm = NISAN;
     tempDt.dd = 15;
     passover = hebrew2abs (tempDt);
-    
+
     tempDt.mm = AV;
     tempDt.dd = 9;
     tishaBav = hebrew2abs (tempDt);
-    
+
     tmpholp = getHolstorep ();   /* allocate hsnode */
     tmpholp->name = HOLIDAY_TZOM_GEDALIAH;
     PushHoliday (tmpholp, &var_holidays[TISHREI]
                  [roshHashana % 7L == THU ? 4 : 3]);
-    
+
     tmpholp = getHolstorep ();
     tmpholp->name = HOLIDAY_SHABBAT_SHUVA;
     tempDt = abs2hebrew (day_on_or_before (SAT, 7L + roshHashana));
     PushHoliday (tmpholp, &var_holidays[TISHREI][tempDt.dd]);
-    
-    
+
+
     /*    printf( "hyear is %d\n",hYear); */
     if (short_kislev (hYear))
     {
         tmpholp = getHolstorep ();
         tmpholp->name = HOLIDAY_CHANUKAH_7_CANDLES;
+        tmpholp->typeMask = CHANUKAH_CANDLES;
         PushHoliday (tmpholp, &var_holidays[TEVET][1]);
         tmpholp = getHolstorep ();
         tmpholp->name = HOLIDAY_CHANUKAH_8_CANDLES;
+        tmpholp->typeMask = CHANUKAH_CANDLES;
         PushHoliday (tmpholp, &var_holidays[TEVET][2]);
         tmpholp = getHolstorep ();
         tmpholp->name = HOLIDAY_CHANUKAH_8TH_DAY;
@@ -447,36 +471,42 @@ static void load_variable_holidays( int hYear )
     {
         tmpholp = getHolstorep ();
         tmpholp->name = HOLIDAY_CHANUKAH_7_CANDLES;
+        tmpholp->typeMask = CHANUKAH_CANDLES;
         PushHoliday (tmpholp, &var_holidays[KISLEV][30]);
         tmpholp = getHolstorep ();
         tmpholp->name = HOLIDAY_CHANUKAH_8_CANDLES;
+        tmpholp->typeMask = CHANUKAH_CANDLES;
         PushHoliday (tmpholp, &var_holidays[TEVET][1]);
         tmpholp = getHolstorep ();
         tmpholp->name = HOLIDAY_CHANUKAH_8TH_DAY;
         PushHoliday (tmpholp, &var_holidays[TEVET][2]);
     }
-    
+
     tmpholp = getHolstorep ();
     tmpholp->name = HOLIDAY_SHABBAT_SHEKALIM;
     tempDt = abs2hebrew (day_on_or_before (SAT, passover - 43L));
     PushHoliday (tmpholp, &var_holidays[tempDt.mm][tempDt.dd]);
-    
+
     tmpholp = getHolstorep ();
     tmpholp->name = HOLIDAY_SHABBAT_ZACHOR;
     tempDt = abs2hebrew (day_on_or_before (SAT, passover - 30L));
     PushHoliday (tmpholp, &var_holidays[tempDt.mm][tempDt.dd]);
-    
+
     tmpholp = getHolstorep ();
     tmpholp->name = HOLIDAY_TA_ANIT_ESTHER;
     tempDt = abs2hebrew (passover - (passover % 7L == TUE ? 33L : 31));
     PushHoliday (tmpholp, &var_holidays[tempDt.mm][tempDt.dd]);
-    
+
     if (LEAP_YR_HEB (hYear))
     {
         tmpholp = getHolstorep ();
         tmpholp->name = HOLIDAY_PURIM_KATAN;
         PushHoliday (tmpholp, &var_holidays[ADAR_I][14]);
-        
+
+        tmpholp = getHolstorep ();
+        tmpholp->name = HOLIDAY_EREV_PURIM;
+        PushHoliday (tmpholp, &var_holidays[ADAR_II][13]);
+
         tmpholp = getHolstorep ();
         tmpholp->name = HOLIDAY_PURIM;
         PushHoliday (tmpholp, &var_holidays[ADAR_II][14]);
@@ -484,10 +514,14 @@ static void load_variable_holidays( int hYear )
     else
     {
         tmpholp = getHolstorep ();
+        tmpholp->name = HOLIDAY_EREV_PURIM;
+        PushHoliday (tmpholp, &var_holidays[ADAR_I][13]);
+
+        tmpholp = getHolstorep ();
         tmpholp->name = HOLIDAY_PURIM;
         PushHoliday (tmpholp, &var_holidays[ADAR_I][14]);
     }
-    
+
     tmpholp = getHolstorep ();
     tmpholp->name = HOLIDAY_SHUSHAN_PURIM;
     tempDt = abs2hebrew (passover - (passover % 7L == SUN ? 28L : 29));
@@ -497,63 +531,91 @@ static void load_variable_holidays( int hYear )
     tmpholp->name = HOLIDAY_SHABBAT_PARAH;
     tempDt = abs2hebrew (day_on_or_before (SAT, passover - 14L) - 7L);
     PushHoliday (tmpholp, &var_holidays[tempDt.mm][tempDt.dd]);
-    
+
     tmpholp = getHolstorep ();
     tmpholp->name = HOLIDAY_SHABBAT_HACHODESH;
     tempDt = abs2hebrew (day_on_or_before (SAT, passover - 14L));
     PushHoliday (tmpholp, &var_holidays[tempDt.mm][tempDt.dd]);
-    
+
     tmpholp = getHolstorep ();
     tmpholp->name = HOLIDAY_TA_ANIT_BECHOROT;
-    if ((passover - 1L) % 7L >= 5)
-    {                            /* saturday or sunday */
+    if ((passover - 1L) % 7L == SAT)
+    {   /* if the fast falls on Shabbat, move to Thursday */
         tempDt = abs2hebrew (day_on_or_before (THU, passover));
         PushHoliday (tmpholp, &var_holidays[tempDt.mm][tempDt.dd]);
     }
     else
         PushHoliday (tmpholp, &var_holidays[NISAN][14]);
 
-    
+
     tmpholp = getHolstorep ();
     tmpholp->name = HOLIDAY_SHABBAT_HAGADOL;
     tempDt = abs2hebrew (day_on_or_before (SAT, passover - 1L));
     PushHoliday (tmpholp, &var_holidays[tempDt.mm][tempDt.dd]);
-    
-    if (hYear > 5698)
-    {                            /* these only really make sense after 1938 */
+
+    if (hYear >= 5711 && !suppressModern_sw)
+    {                            /* Yom HaShoah first observed in 1951 */
+			long int nisan27;
+			int nisan_day = 27;
+
+			tempDt.mm = NISAN;
+			tempDt.dd = 27;
+			nisan27 = hebrew2abs (tempDt);
+
+			/* When the actual date of Yom Hashoah falls on a Friday, the
+			 * state of Israel observes Yom Hashoah on the preceding
+			 * Thursday. When it falls on a Sunday, Yom Hashoah is observed
+			 * on the following Monday.
+			 * http://www.ushmm.org/remembrance/dor/calendar/
+			 */
+        if (nisan27 % 7L == FRI)
+	    		nisan_day = 26;
+        else if (nisan27 % 7L == SUN)
+	    		nisan_day = 28;
+
         tmpholp = getHolstorep ();
         tmpholp->name = HOLIDAY_YOM_HASHOAH;
-        PushHoliday (tmpholp, &var_holidays[NISAN][27]);
-        
+        PushHoliday (tmpholp, &var_holidays[NISAN][nisan_day]);
+    }
+
+    if (hYear > 5708 && !suppressModern_sw)
+    {                            /* only really makes sense after 1948 */
         tmpholp = getHolstorep ();
         tmpholp->name = HOLIDAY_YOM_HAZIKARON;
         if (passover % 7L == SUN)
             tempDt.dd = 3;
         else if (passover % 7L == SAT)
             tempDt.dd = 4;
+        else if( hYear < 5764 )
+            tempDt.dd = 5;
+        else if( passover % 7L == TUE ) /* no Yom Hazikaron on motzei shabbat allowed after 5764*/
+            tempDt.dd = 6;
         else
             tempDt.dd = 5;
         PushHoliday (tmpholp, &var_holidays[IYYAR][tempDt.dd - 1]);
-    }
 
-    if (hYear > 5708)
-    {                            /* only really makes sense after 1948 */
         tmpholp = getHolstorep ();
         tmpholp->name = HOLIDAY_YOM_HAATZMA_UT;
-        if (passover % 7L == SUN)
-            tempDt.dd = 3;
-        else if (passover % 7L == SAT)
-            tempDt.dd = 4;
-        else
-            tempDt.dd = 5;
         PushHoliday (tmpholp, &var_holidays[IYYAR][tempDt.dd]);
     }
 
-    if (hYear > 5727)
+    if (hYear > 5727 && !suppressModern_sw)
     {                            /* only really makes sense after 1967 */
         tmpholp = getHolstorep ();
         tmpholp->name = HOLIDAY_YOM_YERUSHALAYIM;
         PushHoliday (tmpholp, &var_holidays[IYYAR][28]);
+    }
+
+    if (hYear >= 5769 && !suppressModern_sw) {
+        tmpholp = getHolstorep ();
+        tmpholp->name = HOLIDAY_SIGD;
+        PushHoliday (tmpholp, &var_holidays[CHESHVAN][29]);
+    }
+
+    if (hYear >= 5777 && !suppressModern_sw) {
+        tmpholp = getHolstorep ();
+        tmpholp->name = HOLIDAY_YOM_HAALIYAH;
+        PushHoliday (tmpholp, &var_holidays[CHESHVAN][7]);
     }
 
     tmpholp = getHolstorep ();
@@ -563,46 +625,58 @@ static void load_variable_holidays( int hYear )
     else
         tempDt = abs2hebrew (tishaBav - 21L);
     PushHoliday (tmpholp, &var_holidays[tempDt.mm][tempDt.dd]);
-    
+
     tmpholp = getHolstorep ();
-    tmpholp->name = HOLIDAY_SHABBAT_HAZON;
+    tmpholp->name = HOLIDAY_SHABBAT_CHAZON;
     tempDt = abs2hebrew (day_on_or_before (SAT, tishaBav));
     PushHoliday (tmpholp, &var_holidays[tempDt.mm][tempDt.dd]);
-    
+
+    tmpholp = getHolstorep ();
+    tmpholp->name = HOLIDAY_EREV_TISH_A_B_AV;
+    PushHoliday (tmpholp, &var_holidays[AV]
+                 [tishaBav % 7L == SAT ? 9 : 8]);
+
     tmpholp = getHolstorep ();
     tmpholp->name = HOLIDAY_TISH_A_B_AV;
     PushHoliday (tmpholp, &var_holidays[AV]
                  [tishaBav % 7L == SAT ? 10 : 9]);
-    
+
     tmpholp = getHolstorep ();
     tmpholp->name = HOLIDAY_SHABBAT_NACHAMU;
     tempDt = abs2hebrew (day_on_or_before (SAT, tishaBav + 7L));
     PushHoliday (tmpholp, &var_holidays[tempDt.mm][tempDt.dd]);
-    
+
     tmpholp = getHolstorep ();
     tmpholp->name = HOLIDAY_ASARA_B_TEVET;
     if (tevet10 % 7L == SAT)
         PushHoliday (tmpholp, &var_holidays[TEVET][11]);
     else
         PushHoliday (tmpholp, &var_holidays[TEVET][10]);
-    
+
+    tempDt.mm = TISHREI;
+    tempDt.dd = 1;
+    tempDt.yy = hYear + 1;
+    tmpholp = getHolstorep ();
+    tmpholp->name = HOLIDAY_LEIL_SELICHOT;
+    tempDt = abs2hebrew (day_on_or_before (SAT, hebrew2abs (tempDt) - 4L));
+    PushHoliday (tmpholp, &var_holidays[tempDt.mm][tempDt.dd]);
 }
 
 
 /*-------------------------------------------------------------------------*/
-/* this function stores the user "holidays" drawn from inFile in the 
-   var_holidays array.  The intent is that it will be loaded every new 
-   Jewish year.  Gross, I know, but an efficient version will have to wait 
+/* this function stores the user "holidays" drawn from inFile in the
+   var_holidays array.  The intent is that it will be loaded every new
+   Jewish year.  Gross, I know, but an efficient version will have to wait
    until %ID% + .1
    */
 
 void init_user_holidays( int hyear )
 {
     holstorep_t tmpholp;
-    
+
     char *s, *monthStr, *eventStr, nextChar;
     int index, inMonth, inDay, lineNum = 1;
-    
+
     initStr (&s, MAX_LINE_LEN);
     initStr (&monthStr, MAX_LINE_LEN);
     rewind (inFile);
@@ -662,7 +736,7 @@ void init_user_holidays( int hyear )
 
 /*-------------------------------------------------------------------------*/
 /* this function stores yahrtzeits found in yFile.
-   each record is stored in mm dd yyyy str format using GREGORIAN dates 
+   each record is stored in mm dd yyyy str format using GREGORIAN dates
    */
 
 void init_yahrtzeits( int hyear )
@@ -702,7 +776,7 @@ void init_yahrtzeits( int hyear )
         sscanf (monthStr, "%d", &inMonth);
 
         if (inMonth > 12 || inMonth < 1 ||
-            inDay < 1 || inDay > MonthLengths[LEAP (inYear)][inMonth])
+            inDay < 1 || inDay > getMonthLength(inYear, inMonth))
         {
 
             warn ("Date out of range in yahrtzeit file. Skipping line %s",
@@ -730,7 +804,7 @@ void init_yahrtzeits( int hyear )
         /* If it's Kislev 30 it depends on the first anniversary; if
            that was not Kislev 30, use the day before Teveth 1. */
         else if (hDeath.mm == KISLEV && hDeath.dd == 30 &&
-                 !short_kislev (hDeath.yy + 1))
+                 short_kislev (hDeath.yy + 1))
         {
             hDeath.dd = 1;
             hDeath.mm = TEVET;
@@ -752,6 +826,17 @@ void init_yahrtzeits( int hyear )
             hDeath.mm = SHVAT;
         }
         /* In all other cases, use the normal anniversary of the date of death. */
+
+        /* advance day to rosh chodesh if needed */
+        if (hDeath.mm == CHESHVAN && hDeath.dd == 30
+            && !long_cheshvan(hyear)) {
+            hDeath.mm = KISLEV;
+            hDeath.dd = 1;
+        } else if (hDeath.mm == KISLEV && hDeath.dd == 30
+                   && short_kislev(hyear)) {
+            hDeath.mm = TEVET;
+            hDeath.dd = 1;
+        }
 
         eventStr = s + index + 1; /* get the name of the event */
         /*    if (eventStr[strlen(eventStr)-1] == '\n') */
@@ -837,7 +922,7 @@ void freeHolidays( holstorep_t *holiList )
         free (cur);
         cur = next;
     }
-    
+
     *holiList = NULL;
 }
 /*-------------------------------------------------------------------------*/
@@ -848,10 +933,10 @@ int getHebHolidays( date_t dth, holstorep_t *holiList )
 {
     int tmpMask;
     holstorep_t tmpholip, chp;   /* current holiday pointer */
-    
+
     tmpMask = 0;
     *holiList = NULL;
-    
+
     for (chp = holidays[dth.mm][dth.dd]; /* static holidays */
          chp;
          chp = chp->next)
@@ -864,66 +949,44 @@ int getHebHolidays( date_t dth, holstorep_t *holiList )
     {
         tmpMask |= PushHoliday (chp, holiList);
     }
-    
+
     if (dth.dd == 1)
     {
-        
+
         if(dth.mm == TISHREI)     /* special processing for rosh hashana */
         {
             tmpholip = getHolstorep ();
-            initStr (&tmpholip->name, 22);
+            initStr (&tmpholip->name, NM_LEN);
             sprintf (tmpholip->name, "%s %d",
-                     iso8859_8_sw ? "\370\340\371 \344\371\360\344" :
-                     "Rosh Hashana",
+                     _("Rosh Hashana"),
                      dth.yy);
+            tmpholip->typeMask = LIGHT_CANDLES_TZEIS;
             PushHoliday (tmpholip, &var_holidays[TISHREI][1]);
             tmpMask |= PushHoliday (tmpholip, holiList);
         }
-        else 
+        else
         {
             if( ! suppress_rosh_chodesh_sw )      /* rosh Chodesh Processing... */
             {
                 tmpholip = getHolstorep();
                 initStr (&tmpholip->name, NM_LEN);
-                strcat (tmpholip->name,
-                    iso8859_8_sw ? "\370\340\371 \347\343\371 " :
-                        "Rosh Chodesh ");
-                if (!tabs_sw)
-                {
-                    strncat (tmpholip->name,
-                             LANGUAGE2(hMonths[LEAP_YR_HEB (dth.yy)][dth.mm].name),
-                             NM_LEN);
-                }
-                else
-                {
-                    0;                       /* put your special output format here */
-                } /* don't name the rosh chodesh if -y switch */
+                sprintf (tmpholip->name, _("Rosh Chodesh %s"),
+                         LANGUAGE2(hMonths[LEAP_YR_HEB (dth.yy)][dth.mm].name)); 
                 tmpMask |= PushHoliday (tmpholip, holiList);
             }
         }
     }
-    
-    
+
+
     if (dth.dd == 30 && ! suppress_rosh_chodesh_sw)
     {
         tmpholip = getHolstorep ();
         initStr (&tmpholip->name, NM_LEN);
-        strcat (tmpholip->name, 
-                iso8859_8_sw ? "\370\340\371 \347\343\371 " :
-                "Rosh Chodesh ");
-        if (!tabs_sw)
-        {
-            strncat (tmpholip->name,
-                     LANGUAGE2(hMonths[LEAP_YR_HEB (dth.yy)][dth.mm + 1].name),
-                     NM_LEN);
-        }
-        else
-        {
-            0;                     /* put your special output format here. */
-        } /* don't name the rosh chodesh if -y switch */
+        sprintf (tmpholip->name, _("Rosh Chodesh %s"),
+                 LANGUAGE2(hMonths[LEAP_YR_HEB (dth.yy)][dth.mm + 1].name)); 
         tmpMask |= PushHoliday (tmpholip, holiList);
     }
-    
+
 
     return tmpMask;
 }

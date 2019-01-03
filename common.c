@@ -1,10 +1,9 @@
 /*
-   $Id: common.c,v 1.9 2004/03/01 03:03:08 sadinoff Exp $
    Hebcal - A Jewish Calendar Generator
    Copyright (C) 1994-2004  Danny Sadinoff
    Portions Copyright (c) 2002 Michael J. Radwin. All Rights Reserved.
 
-   http://sourceforge.net/projects/hebcal
+   https://github.com/hebcal/hebcal
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -34,37 +33,37 @@
 hmonths_t hMonths =
 {
     {
-        {{"VOID",NULL,"VOID"}},
-        {{"Nisan",NULL,"\360\351\361\357"}},
-        {{"Iyyar",NULL,"\340\351\351\370"}},
-        {{"Sivan",NULL,"\361\351\345\357"}},
-        {{"Tamuz",NULL,"\372\356\345\346"}},
-        {{"Av",NULL,"\340\341"}},
-        {{"Elul",NULL,"\340\354\345\354"}},
-        {{"Tishrei",NULL,"\372\371\370\351"}},
-        {{"Cheshvan",NULL,"\347\371\345\357"}},
-        {{"Kislev",NULL,"\353\361\354\345"}},
-        {{"Tevet",NULL,"\350\341\372"}},
-        {{"Sh'vat",NULL,"\371\341\350"}},
-        {{"Adar",NULL,"\340\343\370"}},
-        {{"Nisan",NULL,"\360\351\361\357"}}
+        {"VOID"},
+        {"Nisan"},
+        {"Iyyar"},
+        {"Sivan"},
+        {"Tamuz"},
+        {"Av"},
+        {"Elul"},
+        {"Tishrei"},
+        {"Cheshvan"},
+        {"Kislev"},
+        {"Tevet"},
+        {"Sh'vat"},
+        {"Adar"},
+        {"Nisan"}
     },
     {
-        {{"VOID",NULL,"VOID"}},
-        {{"Nisan",NULL,"\360\351\361\357"}},
-        {{"Iyyar",NULL,"\340\351\351\370"}},
-        {{"Sivan",NULL,"\361\351\345\357"}},
-        {{"Tamuz",NULL,"\372\356\345\346"}},
-        {{"Av",NULL,"\340\341"}},
-        {{"Elul",NULL,"\340\354\345\354"}},
-        {{"Tishrei",NULL,"\372\371\370\351"}},
-        {{"Cheshvan",NULL,"\347\371\345\357"}},
-        {{"Kislev",NULL,"\353\361\354\345"}},
-        {{"Tevet",NULL,"\350\341\372"}},
-        {{"Sh'vat",NULL,"\371\341\350"}},
-        {{"Adar I",NULL,"\340\343\370 \340'"}},
-        {{"Adar II",NULL,"\340\343\370 \341'"}},
-        {{"Nisan",NULL,"\360\351\361\357"}}
+        {"VOID"},
+        {"Nisan"},
+        {"Iyyar"},
+        {"Sivan"},
+        {"Tamuz"},
+        {"Av"},
+        {"Elul"},
+        {"Tishrei"},
+        {"Cheshvan"},
+        {"Kislev"},
+        {"Tevet"},
+        {"Sh'vat"},
+        {"Adar I"},
+        {"Adar II"},
+        {"Nisan"}
     }
 };
 
@@ -156,19 +155,21 @@ int lookup_hebrew_month( const char *s )
 
 
 
-#if 0
-
 /* 
    returns day of week, hours and chalakim of specified molad.
  */
-molad_t molad( int year, int m)
+molad_t get_molad( int year, int month)
 {
     molad_t retMolad;
     
-    long yearl, m_elapsed, p_elapsed, h_elapsed, parts;
+    long yearl, m_elapsed, p_elapsed, h_elapsed, parts, m_adj;
+
+    m_adj = (long) month;
+    m_adj -= 7;
+    if (m_adj < 0) m_adj += MONTHS_IN_HEB(year);
     
     yearl = (long) year;
-    m_elapsed = (long) m +
+    m_elapsed = m_adj +
         235L * ((yearl - 1L) / 19L) +
     12L * ((yearl - 1L) % 19) +
         ((((yearl - 1L) % 19L) * 7) + 1L) / 19L;
@@ -177,7 +178,8 @@ molad_t molad( int year, int m)
 
     h_elapsed = 5L + (12L * m_elapsed) +
         793L * (m_elapsed / 1080L) +
-        p_elapsed / 1080L;
+        p_elapsed / 1080L -
+        6L;
     
     parts = (p_elapsed % 1080) + 1080 * (h_elapsed % 24);
 
@@ -188,7 +190,6 @@ molad_t molad( int year, int m)
     return retMolad;
 
 }
-#endif
 
 
 date_t abs2hebrew( long d )
@@ -331,7 +332,7 @@ int long_cheshvan( int year )
     return ((days_in_heb_year (year) % 10) == 5);
 }
 
-/* true if Cheshvan is long in hebrew YEAR */
+/* true if Kislev is short in hebrew YEAR */
 int short_kislev( int year ) 
 {
     return ((days_in_heb_year (year) % 10) == 3);

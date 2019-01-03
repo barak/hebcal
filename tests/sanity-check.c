@@ -1,5 +1,5 @@
 /*
-  $Header: /cvsroot/hebcal/c/tests/sanity-check.c,v 1.2 2004/07/16 05:10:47 sadinoff Exp $
+  $Header$
   sanity checker.  Looks for the "august tishri" problem
 */
 

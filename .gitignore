@@ -1,0 +1,39 @@
+Makefile
+.deps
+.*~
+aclocal.m4
+autom4te.cache
+config.h
+config.h.in.orig
+config.log
+config.status
+doc/hebcal.info
+doc/stamp-vti
+doc/version.texi
+doc/version.texi.orig
+hebcal
+hebcal.1
+package.m4
+stamp-h1
+
+# Editor files
+*.sublime*
+
+
+# Object files
+*.o
+
+# Libraries
+*.lib
+*.a
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
