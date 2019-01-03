@@ -1,6 +1,6 @@
 /*
    Hebcal - A Jewish Calendar Generator
-   Copyright (C) 1994  Danny Sadinoff
+   Copyright (C) 1994-2006  Danny Sadinoff
    Portions Copyright (c) 2002 Michael J. Radwin. All Rights Reserved.
 
    http://sourceforge.net/projects/hebcal
@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include "config.h"
 #include "mystring.h"
 #include "mymath.h"
 #include "hebcal.h"

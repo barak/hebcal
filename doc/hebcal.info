@@ -1,6 +1,6 @@
-This is hebcal.info, produced by makeinfo version 4.2 from hebcal.texi.
+This is hebcal.info, produced by makeinfo version 4.7 from hebcal.texi.
 
-This file documents the `hebcal' command for printing a greeting
+   This file documents the `hebcal' command for printing a greeting
 message.
 
    Copyright (C) 1994-2004 Danny Sadinoff
@@ -18,6 +18,7 @@ permission notice identical to this one.
 manual into another language, under the above conditions for modified
 versions, except that this permission notice may be stated in a
 translation approved by the Foundation.
+
 INFO-DIR-SECTION Greeting Printing Program
 INFO-DIR-SECTION Mail Reader
 INFO-DIR-SECTION Programming
@@ -47,18 +48,19 @@ GNU GENERAL PUBLIC LICENSE
 **************************
 
                          Version 2, June 1991
+
      Copyright (C) 1989, 1991 Free Software Foundation, Inc.
      59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-     
+
      Everyone is permitted to copy and distribute verbatim copies
      of this license document, but changing it is not allowed.
 
 Preamble
 ========
 
-   The licenses for most software are designed to take away your
-freedom to share and change it.  By contrast, the GNU General Public
-License is intended to guarantee your freedom to share and change free
+The licenses for most software are designed to take away your freedom
+to share and change it.  By contrast, the GNU General Public License is
+intended to guarantee your freedom to share and change free
 software--to make sure the software is free for all its users.  This
 General Public License applies to most of the Free Software
 Foundation's software and to any other program whose authors commit to
@@ -311,7 +313,6 @@ modification follow.
      and reuse of software generally.
 
                                 NO WARRANTY
-
  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO
      WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE
      LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT
@@ -335,11 +336,10 @@ modification follow.
      ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
                       END OF TERMS AND CONDITIONS
-
 How to Apply These Terms to Your New Programs
 =============================================
 
-   If you develop a new program, and you want it to be of the greatest
+If you develop a new program, and you want it to be of the greatest
 possible use to the public, the best way to achieve this is to make it
 free software which everyone can redistribute and change under these
 terms.
@@ -351,17 +351,17 @@ the "copyright" line and a pointer to where the full notice is found.
 
      ONE LINE TO GIVE THE PROGRAM'S NAME AND AN IDEA OF WHAT IT DOES.
      Copyright (C) 19YY  NAME OF AUTHOR
-     
+
      This program is free software; you can redistribute it and/or
      modify it under the terms of the GNU General Public License
      as published by the Free Software Foundation; either version 2
      of the License, or (at your option) any later version.
-     
+
      This program is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
      GNU General Public License for more details.
-     
+
      You should have received a copy of the GNU General Public License along
      with this program; if not, write to the Free Software Foundation, Inc.,
      59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
@@ -392,7 +392,7 @@ if necessary.  Here is a sample; alter the names:
      interest in the program `Gnomovision'
      (which makes passes at compilers) written
      by James Hacker.
-     
+
      SIGNATURE OF TY COON, 1 April 1989
      Ty Coon, President of Vice
 
@@ -405,11 +405,11 @@ GNU Library General Public License instead of this License.
 
 File: hebcal.info,  Node: Overview,  Next: Sample,  Prev: Copying,  Up: Top
 
-Overview
-********
+1 Overview
+**********
 
-   The `hebcal' program produces a Jewish calendar in various formats,
-but by default in a format suitable for input to `calendar'.
+The `hebcal' program produces a Jewish calendar in various formats, but
+by default in a format suitable for input to `calendar'.
 
    `hebcal' was written by Danny Sadinoff, with major contributions by
 Michael Radwin.  Hebcal is, at root, a port of the GNU Emacs Calendar
@@ -418,10 +418,10 @@ lisp code by Edward M. Reingold and Nachum Dershowitz.
 
 File: hebcal.info,  Node: Sample,  Next: Invoking hebcal,  Prev: Overview,  Up: Top
 
-Sample Output
-*************
+2 Sample Output
+***************
 
-   Here are some realistic examples of running  `hebcal'.
+Here are some realistic examples of running  `hebcal'.
 
    FIXME
 
@@ -431,7 +431,7 @@ Sample Output
        -v, --version       display version information and exit
        -t, --traditional   use traditional greeting format
        -m, --mail          print your mail
-     
+
      Report bugs to <hebcal-bugs@sadinoff.com>
 
    This is the output of the command `hebcal --traditional':
@@ -441,10 +441,10 @@ Sample Output
 
 File: hebcal.info,  Node: Invoking hebcal,  Next: Problems,  Prev: Sample,  Up: Top
 
-Invoking `hebcal'
-*****************
+3 Invoking `hebcal'
+*******************
 
-   The format for running the `hebcal' program is:
+The format for running the `hebcal' program is:
 
      hebcal OPTION ...
 
@@ -472,10 +472,10 @@ Invoking `hebcal'
 
 File: hebcal.info,  Node: Problems,  Next: Concept Index,  Prev: Invoking hebcal,  Up: Top
 
-Reporting Bugs
-**************
+4 Reporting Bugs
+****************
 
-   If you find a bug in GNU `hebcal', please send electronic mail to
+If you find a bug in GNU `hebcal', please send electronic mail to
 <hebcal-bugs@sadinoff.com>.  Include the version number, which you can
 find by running `hebcal version'.  Also include in your message the
 output that the program produced and the output you expected.
@@ -491,37 +491,38 @@ File: hebcal.info,  Node: Concept Index,  Prev: Problems,  Up: Top
 Concept Index
 *************
 
+ [index ]
 * Menu:
 
-* bugs:                                  Problems.
-* creature, feeping:                     Invoking hebcal.
-* creeping feature:                      Invoking hebcal.
-* feature, creeping:                     Invoking hebcal.
-* feeping creature:                      Invoking hebcal.
-* getting help:                          Invoking hebcal.
-* greetings:                             Overview.
-* help:                                  Invoking hebcal.
-* invoking:                              Invoking hebcal.
-* mail:                                  Invoking hebcal.
-* modern:                                Invoking hebcal.
-* options:                               Invoking hebcal.
-* overview:                              Overview.
-* problems:                              Problems.
-* sample:                                Sample.
-* tail recursion:                        Concept Index.
-* traditional:                           Invoking hebcal.
-* usage:                                 Invoking hebcal.
-* version:                               Invoking hebcal.
+* bugs:                                  Problems.             (line  6)
+* creature, feeping:                     Invoking hebcal.      (line 29)
+* creeping feature:                      Invoking hebcal.      (line 29)
+* feature, creeping:                     Invoking hebcal.      (line 29)
+* feeping creature:                      Invoking hebcal.      (line 29)
+* getting help:                          Invoking hebcal.      (line  6)
+* greetings:                             Overview.             (line  6)
+* help:                                  Invoking hebcal.      (line  6)
+* invoking:                              Invoking hebcal.      (line  6)
+* mail:                                  Invoking hebcal.      (line 29)
+* modern:                                Invoking hebcal.      (line 24)
+* options:                               Invoking hebcal.      (line  6)
+* overview:                              Overview.             (line  6)
+* problems:                              Problems.             (line  6)
+* sample:                                Sample.               (line  6)
+* tail recursion:                        Concept Index.        (line  6)
+* traditional:                           Invoking hebcal.      (line 24)
+* usage:                                 Invoking hebcal.      (line  6)
+* version:                               Invoking hebcal.      (line  6)
 
 
 
 Tag Table:
-Node: Top1046
-Node: Copying1416
-Node: Overview20588
-Node: Sample21016
-Node: Invoking hebcal21596
-Node: Problems22238
-Node: Concept Index22873
+Node: Top1050
+Node: Copying1420
+Node: Overview20560
+Node: Sample20989
+Node: Invoking hebcal21565
+Node: Problems22208
+Node: Concept Index22844
 
 End Tag Table

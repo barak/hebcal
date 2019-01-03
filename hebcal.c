@@ -1,5 +1,5 @@
 /*
-   $Id: hebcal.c,v 1.12 2004/08/03 21:39:15 mradwin Exp $
+   $Id: hebcal.c,v 1.13 2006/02/08 05:38:33 sadinoff Exp $
    Hebcal - A Jewish Calendar Generator
    Copyright (C) 1994-2004  Danny Sadinoff
    Portions Copyright (c) 2002 Michael J. Radwin. All Rights Reserved.
@@ -163,14 +163,51 @@ void set_DST_bounds (long *beginDST, long *endDST, int gregYr)
     switch (DST_scheme)
     {
     case DST_USOFA:
-        /*  the first sunday in April */
-        *beginDST = day_on_or_before (SUN, greg2abs (tempDt) + 6L);
+      /* FIX: this needs more work for historical DST, obviously */
+      if( gregYr >= 1966 && gregYr < 1987 ) 
+	{
+        /*  the last sunday in April */
+	  tempDt.dd = 30;
+	  tempDt.mm = 4;
+	  *beginDST = day_on_or_before (SUN, greg2abs (tempDt) );
+
+        /*  the sunday before the first of november */
         tempDt.dd = 1;
         tempDt.mm = 11;
-        /*  the sunday before the first of november */
         *endDST = day_on_or_before (SUN, greg2abs (tempDt) - 1L);
         DST_value = 60;
         break;
+	}
+      else if( gregYr >= 1987 && gregYr < 2007 )
+	{
+        /*  the first sunday in April */
+        *beginDST = day_on_or_before (SUN, greg2abs (tempDt) + 6L);
+
+
+        /*  the sunday before the first of november */
+        tempDt.dd = 1;
+        tempDt.mm = 11;
+        *endDST = day_on_or_before (SUN, greg2abs (tempDt) - 1L);
+
+        DST_value = 60;
+        break;
+	}
+      else if( gregYr >= 2007 )
+	{
+        /*  Second Sunday in March */
+        tempDt.dd = 1;
+        tempDt.mm = 3;
+        *beginDST = day_on_or_before (SUN, greg2abs(tempDt) + 13L);
+
+
+        /*  first sunday of november */
+        tempDt.dd = 1;
+        tempDt.mm = 11;
+        *endDST = day_on_or_before (SUN, greg2abs(tempDt) +6L);
+
+        DST_value = 60;
+        break;
+	}
     case DST_EU:
         /* The EU version of Daylight Saving Time runs from the last
          * Sunday in March through the last Sunday in October.

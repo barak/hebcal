@@ -1,28 +1,19 @@
 ## Process this file with automake to produce Makefile.in
-#$Header: /cvsroot/hebcal/c/Makefile.am,v 1.12 2005/01/04 06:14:56 sadinoff Exp $
+#$Header: /cvsroot/hebcal/c/Makefile.am,v 1.19 2006/02/08 15:04:49 sadinoff Exp $
 
 # Copyright(c) 1994-2004  Danny Sadinoff
 # Portions Copyright (c) 2002 Michael J. Radwin. All Rights Reserved.
 # See section COPYING for conditions for redistribution
 
-#The CITY macro should be set to one of the cities mentioned in cities.h,
-#with spaces->underscore for ease of quoting.
-
-##  this sets the default latitude, longitude and timezone.
-##  the code affected is in rise.c, so modify as necessary.  
-##  See the README file for more information
-CITY = New_York
+VERSION = 3.5
 
 
-VERSION = 3.4
-
-#there is no need to change anything below this line
-# do something with 
+# FIX do something with 
 # groff -T html -man man/man1/hebcal.1 >hebcal-manpage.html
 #-----------------------------------------------------------------
 
-AM_CPPFLAGS = -DCITY='"$(CITY)"' 
-AM_CPPFLAGS += -DVERSION='"$(VERSION)"'
+#AM_CPPFLAGS += -DHEBCAL_OPTS='"$(HEBCAL_OPTS)"' 
+AM_CPPFLAGS = -DVERSION='"$(VERSION)"'
 
 # AM_CFLAGS = -Wall
 
@@ -41,7 +32,8 @@ hebcal_h_files = common.h  danlib.h format.h greg.h hebcal.h \
 
 hebcal_SOURCES = $(hebcal_c_files) $(hebcal_h_files)
 
-man_MANS = hebcal.1
+man1_MANS = hebcal.1
+EXTRA_DIST = $(man1_MANS) OLD_NEWS
 
 BUILT_SOURCES =$(srcdir)/package.m4
 
