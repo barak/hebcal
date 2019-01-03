@@ -1,0 +1,38 @@
+From: "Barak A. Pearlmutter" <bap@debian.org>
+Date: Thu, 3 Jan 2019 20:48:03 +0100
+Subject: typos
+
+---
+ hebcal.1.in | 2 +-
+ start.c     | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/hebcal.1.in b/hebcal.1.in
+index ad8743e..975f03e 100644
+--- a/hebcal.1.in
++++ b/hebcal.1.in
+@@ -116,7 +116,7 @@ Note:
+ hebcal 92 is 
+ .I not
+ the same as hebcal 1992.  The year is assumed to be complete, so the
+-former calendar preceeds the latter by nineteen centuries.
++former calendar precedes the latter by nineteen centuries.
+ .PP
+ A few other bells and whistles include the weekly 
+ .I sedra
+diff --git a/start.c b/start.c
+index e139748..7768420 100644
+--- a/start.c
++++ b/start.c
+@@ -121,9 +121,9 @@ static char* optionsHelpArray[] = {
+ "                                       date range",
+ "    -D, --add-hebrew-dates-for-events  Print the Hebrew date for dates with",
+ "                                       some event",
+-"    -e, --euro-dates                   Ouput 'European' dates -- DD.MM.YYYY",
++"    -e, --euro-dates                   Output 'European' dates -- DD.MM.YYYY",
+ "                                       format",
+-"    -E, --24hour                       Ouput 24-hour times (e.g. 18:37",
++"    -E, --24hour                       Output 24-hour times (e.g. 18:37",
+ "                                       instead of 6:37)",
+ "    -F, --daf-yomi                     Output the Daf Yomi for the entire",
+ "                                       date range",

@@ -1,3 +1,19 @@
+hebcal (4.15-1) unstable; urgency=medium
+
+  * new upstream release (closes: #618613, #620127)
+  * adopt package
+  * accept NMU changes (thanks, Paulo!)
+  * bump to dh12
+  * simplify debian/rules
+  * harden
+  * bump standards version
+  * adjust to upstream documentation file changes
+  * quilt patch for some typos
+  * add packaging repository on salsa
+  * remove now-unneeded packaging support files
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Thu, 03 Jan 2019 19:51:50 +0100
+
 hebcal (3.5-2.1) unstable; urgency=medium
 
   * Non-maintainer upload.
