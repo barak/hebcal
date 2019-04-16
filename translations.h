@@ -5,6 +5,10 @@
 #ifndef __HEBCAL_TRANSLATIONS__
 #define __HEBCAL_TRANSLATIONS__
 
+#define HEBCAL_LANG_LIST "ashkenazi, ashkenazi_litvish, ashkenazi_poylish, ashkenazi_standard, fi, fr, he, hu, pl, ru"
+
+const char *hebcal_langs[11];
+
 struct event_title { char *name; char *dest; };
 
 const char * lookup_translation(const char *s);
@@ -18,6 +22,7 @@ typedef enum hebcal_lang_e {
     HEBCAL_LANG_FI,
     HEBCAL_LANG_FR,
     HEBCAL_LANG_HE,
+    HEBCAL_LANG_HU,
     HEBCAL_LANG_PL,
     HEBCAL_LANG_RU,
     HEBCAL_LANG_UNDEFINED

@@ -5,6 +5,20 @@
 #include "translations.h"
 #include <string.h>
 
+const char *hebcal_langs[] = {
+   "ashkenazi",
+   "ashkenazi_litvish",
+   "ashkenazi_poylish",
+   "ashkenazi_standard",
+   "fi",
+   "fr",
+   "he",
+   "hu",
+   "pl",
+   "ru",
+   NULL
+};
+
 struct event_title * hebcal_lookup_ashkenazi(const char *str, unsigned int len);
 struct event_title * hebcal_lookup_ashkenazi_litvish(const char *str, unsigned int len);
 struct event_title * hebcal_lookup_ashkenazi_poylish(const char *str, unsigned int len);
@@ -12,6 +26,7 @@ struct event_title * hebcal_lookup_ashkenazi_standard(const char *str, unsigned 
 struct event_title * hebcal_lookup_fi(const char *str, unsigned int len);
 struct event_title * hebcal_lookup_fr(const char *str, unsigned int len);
 struct event_title * hebcal_lookup_he(const char *str, unsigned int len);
+struct event_title * hebcal_lookup_hu(const char *str, unsigned int len);
 struct event_title * hebcal_lookup_pl(const char *str, unsigned int len);
 struct event_title * hebcal_lookup_ru(const char *str, unsigned int len);
 
@@ -38,6 +53,8 @@ hebcal_lang hebcal_get_language(const char *locale) {
         return HEBCAL_LANG_FR;
     } else if (0 == strcmp(locale, "he")) {
         return HEBCAL_LANG_HE;
+    } else if (0 == strcmp(locale, "hu")) {
+        return HEBCAL_LANG_HU;
     } else if (0 == strcmp(locale, "pl")) {
         return HEBCAL_LANG_PL;
     } else if (0 == strcmp(locale, "ru")) {
@@ -75,6 +92,9 @@ const char * lookup_translation(const char *src) {
             break;
         case HEBCAL_LANG_HE:
             et = hebcal_lookup_he(src, strlen(src));
+            break;
+        case HEBCAL_LANG_HU:
+            et = hebcal_lookup_hu(src, strlen(src));
             break;
         case HEBCAL_LANG_PL:
             et = hebcal_lookup_pl(src, strlen(src));
