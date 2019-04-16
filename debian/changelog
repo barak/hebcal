@@ -1,3 +1,10 @@
+hebcal (4.17-1) unstable; urgency=medium
+
+  * remove upstreamed quilt patches
+  * new upstream release (closes: #919868)
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Tue, 16 Apr 2019 14:06:48 +0100
+
 hebcal (4.16-1) unstable; urgency=medium
 
   * new upstream release
