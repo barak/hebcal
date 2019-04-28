@@ -1,3 +1,9 @@
+hebcal (4.18-1) unstable; urgency=medium
+
+  * new upstream release, apparently fixes bigendian issues
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Sun, 28 Apr 2019 19:13:01 +0100
+
 hebcal (4.17-1) unstable; urgency=medium
 
   * remove upstreamed quilt patches
