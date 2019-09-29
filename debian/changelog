@@ -1,3 +1,12 @@
+hebcal (4.19-1) unstable; urgency=medium
+
+  * new upstream version, this time really fixes the bigendian issue
+  * debhelper version syntax
+  * bump policy, no changes needed
+  * no need to build as root
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Sun, 29 Sep 2019 17:55:06 +0100
+
 hebcal (4.18-1) unstable; urgency=medium
 
   * new upstream release, apparently fixes bigendian issues
