@@ -1,4 +1,4 @@
-hebcal (4.20-1) UNRELEASED; urgency=medium
+hebcal (4.20-1) unstable; urgency=medium
 
   [ Debian Janitor ]
   * Set upstream metadata fields: Bug-Database, Bug-Submit, Name (from
@@ -8,8 +8,10 @@ hebcal (4.20-1) UNRELEASED; urgency=medium
   [ Barak A. Pearlmutter ]
   * Bump to debhelper compatibility level 13
   * New upstream release
+  * Track minor upstream changes and include an autotools patch
+  * Build dependency for AX_ warning-enable autoconf macro
 
- -- Barak A. Pearlmutter <bap@debian.org>  Fri, 15 May 2020 08:39:05 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Fri, 15 May 2020 09:43:42 +0100
 
 hebcal (4.19-1) unstable; urgency=medium
 
