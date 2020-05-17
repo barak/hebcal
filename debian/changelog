@@ -1,3 +1,9 @@
+hebcal (4.20-2) unstable; urgency=medium
+
+  * Track upstream changes (closes: #957331)
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Sun, 17 May 2020 22:58:03 +0100
+
 hebcal (4.20-1) unstable; urgency=medium
 
   [ Debian Janitor ]
