@@ -231,7 +231,7 @@ static int get_rise_set(date_t todayGreg, double *h_rise, double *h_set, double 
     t->y = todayGreg.yy;
     t->m = todayGreg.mm;
     t->d = todayGreg.dd;
-    t->h = 17;			/* assume 5pm */
+    t->h = 12;			/* assume 12pm */
 
     timelib_set_timezone(t, TZ_INFO);
     /* t->tz_info = TZ_INFO; */
@@ -296,7 +296,8 @@ void print_candlelighting_times( int mask, int weekday, date_t todayGreg)
     double gmt_offset;
     double h_rise, h_set, N;
     double n_offset;
-    int hour, minute, pm;
+    double minute0;
+    int hour, minute;
     int rs;
     int num_zmanim = sizeof (zemanim) / sizeof (struct _zman); 
     int i_zman;
@@ -355,12 +356,22 @@ void print_candlelighting_times( int mask, int weekday, date_t todayGreg)
        }
        
        hour = (int) N;
-       pm = (hour > 11);
+       minute0 = 60.0 * (N - (double) hour);
+       minute = (int) minute0;
+
+       if ((zemanim[i_zman].flags == ZMAN_CANDLES_AFTER ||
+            zemanim[i_zman].flags == ZMAN_HAVDALAH) &&
+           (minute0 - (double) minute) >= 0.5) {
+         minute++;
+         if (minute == 60) {
+           minute = 0;
+           hour++;
+         }
+       }
        if (hour > 12 && !twentyFourHour_sw) {
            hour = hour % 12;
        }
-       minute = (int) (60 * (N - (int) N));
-       
+
        PrintGregDate (todayGreg);
        zman_name = _(zemanim[i_zman].name_sfrd);
        if (zemanim[i_zman].flags == ZMAN_HAVDALAH) {
