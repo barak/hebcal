@@ -1,3 +1,9 @@
+hebcal (4.23-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Sun, 27 Dec 2020 21:23:04 +0000
+
 hebcal (4.22-1) unstable; urgency=medium
 
   * New upstream release
