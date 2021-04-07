@@ -3,8 +3,9 @@ hebcal (4.24-2) UNRELEASED; urgency=medium
   * Add lintian override for spelling of “Alot”
   * Remove initial article from description summary per lintian, and add
     “Hebrew Calendar” to description for searchability
+  * Regenerate debian/copyright
 
- -- Barak A. Pearlmutter <bap@debian.org>  Wed, 07 Apr 2021 10:05:18 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Wed, 07 Apr 2021 10:24:44 +0100
 
 hebcal (4.24-1) unstable; urgency=medium
 
