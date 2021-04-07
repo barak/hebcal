@@ -14,7 +14,7 @@ Vcs-Browser: https://salsa.debian.org/debian/hebcal
 Package: hebcal
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: A Perpetual Jewish Calendar
- Hebcal is a program which prints out the days in the Jewish calendar
- for a given gregorian year.  Hebcal is fairly flexible in terms of which
- events in the Jewish calendar it displays.
+Description: Perpetual Jewish Calendar
+ Hebcal is a program which prints out the days in the Jewish calendar,
+ aka the Hebrew Calendar, for a given gregorian year. Hebcal is fairly
+ flexible in terms of which events it displays.
