@@ -1,13 +1,14 @@
-hebcal (4.24-2) UNRELEASED; urgency=medium
+hebcal (4.24-2) unstable; urgency=medium
 
   * Add lintian override for spelling of “Alot”
   * Remove initial article from description summary per lintian, and add
     “Hebrew Calendar” to description for searchability
+  * Track upstream commit: updated time database
   * Regenerate debian/copyright
   * Quilt patch to fix "must be run in tests/" bug in test 11
   * Enable autopkgtest
 
- -- Barak A. Pearlmutter <bap@debian.org>  Sat, 10 Apr 2021 21:50:02 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Sat, 10 Apr 2021 21:52:37 +0100
 
 hebcal (4.24-1) unstable; urgency=medium
 
