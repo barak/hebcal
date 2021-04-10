@@ -4,8 +4,9 @@ hebcal (4.24-2) UNRELEASED; urgency=medium
   * Remove initial article from description summary per lintian, and add
     “Hebrew Calendar” to description for searchability
   * Regenerate debian/copyright
+  * Quilt patch to fix "must be run in tests/" bug in test 11
 
- -- Barak A. Pearlmutter <bap@debian.org>  Wed, 07 Apr 2021 10:24:44 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Sat, 10 Apr 2021 19:09:22 +0100
 
 hebcal (4.24-1) unstable; urgency=medium
 

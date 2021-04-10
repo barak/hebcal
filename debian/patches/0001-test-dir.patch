@@ -1,0 +1,25 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Sat, 10 Apr 2021 19:07:53 +0100
+Subject: test dir
+
+---
+ tests/hebcal-11 | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tests/hebcal-11 b/tests/hebcal-11
+index c89f945..8463f43 100755
+--- a/tests/hebcal-11
++++ b/tests/hebcal-11
+@@ -7,10 +7,10 @@ outfile="$filebase.out"
+ okfile="$filebase.ok"
+ 
+ : ${HEBCAL=../hebcal}
+-${HEBCAL} -h -x -D --years 25 -Y yahrzeit.txt 2018 > $outfile
++: ${srcdir=.}
++${HEBCAL} -h -x -D --years 25 -Y ${srcdir}/yahrzeit.txt 2018 > $outfile
+ 
+ : ${DIFF=diff}
+-: ${srcdir=.}
+ ${DIFF} ${srcdir}/$okfile $outfile
+ result=$?
+ 
