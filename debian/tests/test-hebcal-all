@@ -1,8 +1,7 @@
 #!/bin/sh
 set -e
 # Tests are numbered 1 to 11.
-# We skip test 2 because it links a test jig to object files, so only works to test built objects.
-# Test 11 requires a patch due to a working directory issue, will fail unless quilt patches are loaded.
+# Test 2 skipped because it links a test jig to object files, so only works to test built objects.
 for i in $(seq 1 1 ; seq 3 11); do
     env --chdir=${HOME} HEBCAL=/usr/bin/hebcal srcdir=${PWD}/tests ${PWD}/tests/hebcal-${i}
 done
