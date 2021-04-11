@@ -1,8 +1,11 @@
 hebcal (4.24-3) UNRELEASED; urgency=medium
 
   * Update uscan support file
+  * Track upstream changes
+  * New build dependency: gperf
+  * Quilt patch to test script 11 has been upstreamed
 
- -- Barak A. Pearlmutter <bap@debian.org>  Sun, 11 Apr 2021 08:43:58 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Sun, 11 Apr 2021 19:38:39 +0100
 
 hebcal (4.24-2) unstable; urgency=medium
 
